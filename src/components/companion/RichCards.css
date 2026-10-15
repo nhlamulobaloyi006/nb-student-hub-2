@@ -1,0 +1,323 @@
+/* ══════════════════════════════════════════════════════════
+   1. Course match cards
+   ══════════════════════════════════════════════════════════ */
+.rc-courses {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.rc-course {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card-2);
+  min-width: 0;
+}
+.rc-course-green  { border-color: rgba(34, 197, 94, 0.24); }
+.rc-course-indigo { border-color: rgba(99, 102, 241, 0.24); }
+.rc-course-red    { border-color: rgba(239, 68, 68, 0.24); }
+
+.rc-course-badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.rc-course-badge-green  { background: var(--success-soft); color: var(--success); }
+.rc-course-badge-indigo { background: var(--info-soft);    color: #A5B4FC; }
+.rc-course-badge-red    { background: var(--danger-soft);  color: var(--danger); }
+
+.rc-course-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.rc-course-uni {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+}
+.rc-course-uni-name { color: var(--text-2); font-weight: 600; }
+.rc-course-uni-prov { color: var(--text-3); }
+
+.rc-course-reqs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.rc-course-req {
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.rc-course-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+.rc-course-aps { font-weight: 700; color: var(--gold); }
+.rc-course-dot { color: var(--text-3); }
+.rc-course-reason {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.4;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+.rc-course-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+  color: #0A0E1A;
+  font-weight: 700;
+  font-size: 12px;
+  transition: background var(--t-fast);
+  align-self: flex-start;
+}
+.rc-course-cta:hover { background: var(--gold-dark); }
+
+/* ══════════════════════════════════════════════════════════
+   2. Cost estimate card
+   ══════════════════════════════════════════════════════════ */
+.rc-cost {
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rc-cost-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.rc-cost-course { font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.rc-cost-uni    { font-size: 11.5px; color: var(--text-3); margin-top: 3px; }
+
+.rc-cost-big {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--gold);
+  line-height: 1.05;
+}
+.rc-cost-currency { font-size: 20px; margin-right: 2px; }
+.rc-cost-per {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  margin-left: 10px;
+  letter-spacing: 0;
+}
+
+.rc-cost-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+.rc-cost-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.rc-cost-row-label { color: var(--text-2); }
+.rc-cost-row-amount { color: var(--text); font-weight: 600; }
+.rc-cost-row-pct { color: var(--text-3); min-width: 32px; text-align: right; }
+
+.rc-cost-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   3. Funding cards
+   ══════════════════════════════════════════════════════════ */
+.rc-funds {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.rc-fund {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card-2);
+  transition: border-color var(--t-fast), background var(--t-fast);
+  min-width: 0;
+}
+.rc-fund:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+.rc-fund-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.rc-fund-provider {
+  font-size: 10px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rc-fund-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.rc-fund-amount {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.35;
+}
+.rc-fund-deadline {
+  font-size: 10.5px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.rc-fund-deadline.is-urgent {
+  color: #F87171;
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════════════
+   4. Step list
+   ══════════════════════════════════════════════════════════ */
+.rc-steps {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rc-step {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+}
+.rc-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 11.5px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.rc-step-body { min-width: 0; }
+.rc-step-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.rc-step-text {
+  font-size: 11.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   5. Next action
+   ══════════════════════════════════════════════════════════ */
+.rc-next {
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card-2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rc-next-gold     { border-color: var(--gold-ring); }
+.rc-next-warning  { border-color: rgba(245, 158, 11, 0.35); }
+.rc-next-success  { border-color: rgba(34, 197, 94, 0.32); }
+.rc-next-info     { border-color: rgba(99, 102, 241, 0.32); }
+
+.rc-next-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+.rc-next-label-warning { color: var(--warning); }
+.rc-next-label-success { color: var(--success); }
+.rc-next-label-info    { color: #A5B4FC; }
+
+.rc-next-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.rc-next-sub {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.rc-next-cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .rc-courses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rc-funds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .rc-courses { grid-template-columns: minmax(0, 1fr); }
+  .rc-funds { grid-template-columns: minmax(0, 1fr); }
+  .rc-cost-grid { grid-template-columns: minmax(0, 1fr); }
+}

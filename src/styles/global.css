@@ -1,0 +1,132 @@
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--text);
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 22px; }
+h3 { font-size: 17px; }
+h4 { font-size: 15px; }
+
+p { margin: 0; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+img { max-width: 100%; display: block; }
+
+/* Scrollbars — subtle dark mode */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--gold);
+  color: #0A0E1A;
+}
+
+/* ══════════════════════════════════════════════════════════
+   POLISH
+   ══════════════════════════════════════════════════════════ */
+
+/* Smooth scrolling for the app shell */
+html { scroll-behavior: smooth; }
+
+/* Give interactive elements a consistent gold focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Focus ring should be invisible for mouse users, visible for keyboard */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) { outline: none; }
+
+/* Selects and inputs: match the gold hover state */
+select:hover,
+input:hover { border-color: var(--border-strong); }
+
+/* Prevent long unbroken strings (reference numbers, emails) from breaking layouts */
+p, span, div, li { overflow-wrap: anywhere; }
+
+/* Keep layout stable when a vertical scrollbar appears/disappears */
+html { scrollbar-gutter: stable; }
+
+/* Number inputs — remove spinners on Firefox */
+input[type=number] { -moz-appearance: textfield; }
+
+/* Better tap targets on mobile */
+@media (max-width: 640px) {
+  button, a { -webkit-tap-highlight-color: rgba(245, 197, 66, 0.15); }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print: hide chrome, show content */
+@media print {
+  .sidebar,
+  .seed,
+  .app-sidebar { display: none !important; }
+  body { background: #FFFFFF; color: #000; }
+  .app-main-inner { padding: 0; max-width: none; }
+}
