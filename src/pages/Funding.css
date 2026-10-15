@@ -573,3 +573,36 @@
   .fn-ladder-steps { grid-template-columns: minmax(0, 1fr); }
   .fn-ladder-progress { text-align: left; }
 }
+
+
+/* Mobile: stack funding card actions so nothing overflows */
+@media (max-width: 900px) {
+  .fn-card-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "status status"
+      "cta    save";
+    gap: 8px 10px;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+  }
+  .fn-card-status {
+    grid-area: status;
+    justify-self: start;
+    max-width: 100%;
+  }
+  .fn-card-cta {
+    grid-area: cta;
+    width: 100%;
+    justify-content: center;
+  }
+  .fn-card-save {
+    grid-area: save;
+    justify-self: end;
+    padding: 8px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
