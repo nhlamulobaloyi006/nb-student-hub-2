@@ -70,4 +70,17 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
+  preview: {
+    port: 4173,
+    host: true,
+    // Allow LAN access (phone on the same Wi-Fi) plus HTTPS tunnels
+    // used for testing the PWA on phones.
+    allowedHosts: [
+      'localhost',
+      '.loca.lt',
+      '.ngrok.io',
+      '.ngrok-free.app',
+      '.trycloudflare.com',
+    ],
+  },
 });
