@@ -8,6 +8,7 @@ import {
   StepList,
   NextActionCard,
   CompareCards,
+  CareerCards,
 } from '../components/companion/RichCards';
 import {
   detectIntent,
@@ -15,6 +16,7 @@ import {
   welcomeMessage,
 } from '../utils/aiEngine';
 import { STREAM_LABELS } from '../data/subjects';
+import { COURSES } from '../data/courses';
 import { promptText } from '../utils/nudges';
 
 import './AICompanion.css';
@@ -54,6 +56,39 @@ export default function AICompanion() {
       return [fresh];
     }
   });
+  /* Seed a message from ?prompt= (and optionally ?course=) on mount */
+  useEffect(() => {
+    const promptKey = searchParams.get('prompt');
+    const courseId = searchParams.get('course');
+    if (!promptKey) return;
+
+    let courseName = '';
+    if (courseId) {
+      const course = COURSES.find((c) => c.id === courseId);
+      if (course) courseName = course.name;
+    }
+
+    const text = promptText(promptKey, courseName);
+    if (!text) return;
+
+    const next = new URLSearchParams(searchParams);
+    next.delete('prompt');
+    next.delete('course');
+    setSearchParams(next, { replace: true });
+
+    const userMsg = { id: 'u_' + Date.now(), role: 'user', text };
+    setMessages((prev) => [...prev, userMsg]);
+    setThinking(true);
+    setTimeout(() => {
+      const intent = detectIntent(text);
+      const reply = buildResponse(intent, user, text);
+      const botMsg = { id: reply.id, role: 'bot', ...reply };
+      setMessages((prev) => [...prev, botMsg]);
+      setThinking(false);
+    }, 380);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
 
@@ -223,6 +258,7 @@ function MessageRow({ message, onChip }) {
         {message.kind === 'steps'     && <StepList steps={message.payload?.steps || []} />}
         {message.kind === 'next-action' && <NextActionCard action={message.payload} />}
         {message.kind === 'compare'   && <CompareCards institutions={message.payload?.institutions || []} />}
+        {message.kind === 'careers'   && <CareerCards careers={message.payload?.careers || []} courseName={message.payload?.courseName || ''} total={message.payload?.total} />}
 
         {Array.isArray(message.chips) && message.chips.length > 0 && (
           <div className="aic-inline-chips">
@@ -389,9 +425,10 @@ function HelpfulLinks() {
 
 const SUGGESTED = [
   'What can I study with my marks?',
+  'What careers fit my top match?',
   'Compare these institutions',
   'How do I apply for NSFAS?',
-  'What could studying this course cost?',
+  'What would studying this course cost?',
   'Which bursaries might suit me?',
   'What should I do next?',
 ];

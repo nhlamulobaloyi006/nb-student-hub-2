@@ -17,10 +17,14 @@ export const PROMPT_TEXT = {
   "finish-application": "What should I do next?",
   "funding-urgent":     "Which bursaries might suit me?",
   "wellness-nudge":     "What should I do next?",
+  'careers-for-course': 'What careers can I get with this course?',
 };
 
-export function promptText(key) {
+export function promptText(key, courseName) {
   if (!key) return null;
+  if (key === 'careers-for-course' && courseName) {
+    return 'What careers can I get with ' + courseName + '?';
+  }
   return PROMPT_TEXT[key] || null;
 }
 

@@ -17,6 +17,7 @@ import { COURSES } from '../data/courses';
 import { FUNDING, daysUntilDeadline } from '../data/funding';
 import { INSTITUTION_BY_ID, INSTITUTIONS } from '../data/institutions';
 import { checkEligibility } from './eligibilityChecker';
+import { matchCareersForCourse } from './matchCareers';
 import { calculateAPS } from './apsCalculator';
 import { getNextAction } from './getNextAction';
 import { STREAM_LABELS } from '../data/subjects';
@@ -32,6 +33,8 @@ const INTENTS = [
   { id: 'next-step',      patterns: [/what.*(next|now)/i, /what should i do/i, /where do i start/i, /i'm stuck/i] },
   { id: 'eligibility',    patterns: [/do i qualify/i, /am i eligible/i, /will i get in/i, /requirements/i] },
   { id: 'study-tips',     patterns: [/study tips/i, /how to study/i, /focus/i, /concentrate/i] },
+  { id: 'careers-for-course', patterns: [/what careers/i, /careers (with|for|can i)/i, /what can i do with/i, /jobs with/i, /which careers/i] },
+
   { id: 'stress',         patterns: [/stressed/i, /overwhelm/i, /anxious/i, /pressure/i] },
 ];
 
@@ -57,6 +60,7 @@ export function buildResponse(intentId, user, rawText = '') {
     case 'eligibility':   return eligibilityResponse(user);
     case 'study-tips':    return studyTipsResponse();
     case 'stress':        return stressResponse();
+    case 'careers-for-course': return careersForCourseResponse(user, rawText);
     default:              return fallbackResponse();
   }
 }
@@ -390,7 +394,71 @@ function stressResponse() {
   };
 }
 
+
 /* ── Fallback ────────────────────────────────────────────── */
+
+/* ── Careers for a course ────────────────────────────── */
+
+function careersForCourseResponse(user, rawText) {
+  const mentioned = findMentionedCourse(rawText);
+  const course = mentioned || topCourseForUser(user);
+
+  if (!course) {
+    return {
+      id: rid(),
+      kind: 'text',
+      text: 'I need a course to work with. Add your marks on Profile so I can match you, or ask me about a specific course by name.',
+      chips: ['What can I study with my marks?', 'What should I do next?'],
+    };
+  }
+
+  const matches = matchCareersForCourse(course, { limit: 6 });
+  if (matches.length === 0) {
+    return {
+      id: rid(),
+      kind: 'text',
+      text: 'I could not find careers mapped to ' + course.name + ' yet. Try the Careers page for the full list.',
+      chips: ['What should I do next?', 'Show me funding options'],
+    };
+  }
+
+  return {
+    id: rid(),
+    kind: 'careers',
+    text: '**' + course.name + '** opens doors to ' + matches.length + ' career' + (matches.length === 1 ? '' : 's') + '. Here are the top ones with the salary range you can expect as you grow.',
+    payload: {
+      courseName: course.name,
+      total: matches.length,
+      careers: matches.map(({ career }) => ({
+        id: career.id,
+        title: career.title,
+        blurb: career.blurb,
+        salaryRange: career.salaryRange,
+        iconKey: career.iconKey,
+        interestTags: career.interestTags,
+      })),
+    },
+    chips: ['Which bursaries might suit me?', 'What would this cost?', 'What should I do next?'],
+  };
+}
+
+function findMentionedCourse(text) {
+  if (!text) return null;
+  const lower = String(text).toLowerCase();
+  const byId = COURSES.find((c) => lower.includes(c.id.toLowerCase()));
+  if (byId) return byId;
+  const sorted = [...COURSES].sort((a, b) => b.name.length - a.name.length);
+  return sorted.find((c) => lower.includes(c.name.toLowerCase())) || null;
+}
+
+function topCourseForUser(user) {
+  if (!user || !user.subjectMarks) return null;
+  const passes = COURSES
+    .map((c) => ({ c, e: checkEligibility(c, user) }))
+    .filter((x) => x.e.status === 'pass')
+    .sort((a, b) => (b.c.minAPS || 0) - (a.c.minAPS || 0));
+  return passes[0]?.c || null;
+}
 
 function fallbackResponse() {
   return {
@@ -450,6 +518,7 @@ export function welcomeMessage(user) {
       `where, how to apply, or how to fund it. Right now, my suggestion is: **${action.title}**.`,
     chips: [
       'What can I study with my marks?',
+      'What careers can I get with my top match?',
       'What would studying this cost?',
       'Which bursaries might suit me?',
       'How do I apply for NSFAS?',

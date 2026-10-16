@@ -8,6 +8,7 @@ import Logo from '../components/Logo';
 import './ApplicationTracker.css';
 import { useDialog } from '../components/DialogProvider';
 import FundingMatchModal from '../components/FundingMatchModal';
+import CareerMatchModal from '../components/CareerMatchModal';
 import { matchFunding } from '../utils/matchFunding';
 import { useSearchParams } from 'react-router-dom';
 
@@ -43,6 +44,8 @@ export default function ApplicationTracker() {
   const applications = useMemo(() => user?.applications || [], [user]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [fundingMatch, setFundingMatch] = useState(null);
+  const [lastAppliedCourse, setLastAppliedCourse] = useState(null);
+  const [careerMatch, setCareerMatch] = useState(null);
 
   // React to ?new=<courseId> — opens the funding modal
   useEffect(() => {
@@ -52,6 +55,7 @@ export default function ApplicationTracker() {
     if (!course) return;
     const result = matchFunding(user, course, { max: 6 });
     setFundingMatch({ course, funds: result.top });
+    setLastAppliedCourse(course);
     // clear the URL param so a refresh doesn't re-open the modal
     const next = new URLSearchParams(searchParams);
     next.delete('new');
@@ -61,6 +65,43 @@ export default function ApplicationTracker() {
 
   function closeFundingMatch() {
     setFundingMatch(null);
+    // Kick off the 5-second careers prompt only if we have a course to talk about
+    if (!lastAppliedCourse) return;
+    if (isCareerMuted(lastAppliedCourse.id)) return;
+    setTimeout(() => {
+      // Fire only if the user is still on this page (no navigation in the meantime)
+      if (window.location.pathname !== '/applications') return;
+      setCareerMatch({ course: lastAppliedCourse });
+    }, 5000);
+  }
+
+  function closeCareerMatch() {
+    if (careerMatch?.course) {
+      muteCareer(careerMatch.course.id);
+    }
+    setCareerMatch(null);
+  }
+
+  function isCareerMuted(courseId) {
+    try {
+      const raw = localStorage.getItem('nb_careers_muted');
+      const map = raw ? JSON.parse(raw) : {};
+      const at = map[courseId];
+      if (!at) return false;
+      const days = (Date.now() - Number(at)) / 86400000;
+      return days < 3;
+    } catch {
+      return false;
+    }
+  }
+
+  function muteCareer(courseId) {
+    try {
+      const raw = localStorage.getItem('nb_careers_muted');
+      const map = raw ? JSON.parse(raw) : {};
+      map[courseId] = Date.now();
+      localStorage.setItem('nb_careers_muted', JSON.stringify(map));
+    } catch { /* ignore */ }
   }
 
   const [selectedId, setSelectedId] = useState(() => applications[0]?.id || null);
@@ -307,6 +348,14 @@ export default function ApplicationTracker() {
           course={fundingMatch.course}
           funds={fundingMatch.funds}
           onClose={closeFundingMatch}
+        />
+      )}
+
+      {careerMatch && (
+        <CareerMatchModal
+          course={careerMatch.course}
+          onClose={closeCareerMatch}
+          onDismiss={closeCareerMatch}
         />
       )}
     </div>

@@ -29,8 +29,8 @@ export function getNextAction(user) {
       key: 'set-stream',
       title: 'Set up your profile',
       sub: 'Add your stream and subjects so we can match you with courses.',
-      ctaLabel: 'Go to profile',
-      to: '/profile',
+      ctaLabel: 'Start setup',
+      to: '/onboarding',
       tone: 'gold',
     };
   }
@@ -55,7 +55,7 @@ export function getNextAction(user) {
       title: 'Log your marks',
       sub: 'Add your subject percentages so we can check which courses you qualify for.',
       ctaLabel: 'Add marks',
-      to: '/profile',
+      to: '/onboarding',
       tone: 'gold',
     };
   }

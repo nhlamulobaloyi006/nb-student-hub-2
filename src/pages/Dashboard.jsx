@@ -19,7 +19,6 @@ import { COURSES } from '../data/courses';
 import { FUNDING, daysUntilDeadline } from '../data/funding';
 import { getNextAction, getRoadmapMilestones } from '../utils/getNextAction';
 import { checkEligibility } from '../utils/eligibilityChecker';
-import FirstRunSeed from '../components/FirstRunSeed';
 import ResumeSetupBanner from '../components/ResumeSetupBanner';
 
 import './Dashboard.css';
@@ -92,9 +91,6 @@ export default function Dashboard() {
 
       {/* ─── Resume setup (if onboarding incomplete) ── */}
       <ResumeSetupBanner />
-
-      {/* ─── First-run seed (only for empty profiles) ── */}
-      <FirstRunSeed />
 
       {/* ─── Two-column body ────────────────────────────── */}
       <div className="dash-body">
