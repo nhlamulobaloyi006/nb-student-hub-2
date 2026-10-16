@@ -16,6 +16,7 @@ import { FUNDING, daysUntilDeadline } from '../data/funding';
 import { getNextAction, getRoadmapMilestones } from '../utils/getNextAction';
 import { checkEligibility } from '../utils/eligibilityChecker';
 import FirstRunSeed from '../components/FirstRunSeed';
+import ResumeSetupBanner from '../components/ResumeSetupBanner';
 
 import './Dashboard.css';
 
@@ -48,7 +49,7 @@ export default function Dashboard() {
       <header className="dash-hero">
         <div className="dash-hero-left">
           <h1 className="dash-greeting">
-            Good {timeOfDay()}, {firstName} 
+            Good {timeOfDay()}, {firstName}
           </h1>
           <div className="dash-subline">{subtitle}</div>
           <div className="dash-quote">"{quote.text}"{quote.author && <span className="dash-quote-author"> — {quote.author}</span>}</div>
@@ -60,6 +61,9 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* ─── Resume setup (if onboarding incomplete) ── */}
+      <ResumeSetupBanner />
 
       {/* ─── First-run seed (only for empty profiles) ── */}
       <FirstRunSeed />
@@ -78,7 +82,7 @@ export default function Dashboard() {
           <div className="dash-widgets">
             <WidgetStreak
               current={user?.streaks?.current || 0}
-              history={user?.streaks?.history || []}
+              checkins={user?.streaks?.checkins || []}
             />
             <WidgetApplications applications={user?.applications || []} />
             <WidgetWellness checkins={user?.wellness?.checkins || []} />
@@ -158,7 +162,7 @@ export default function Dashboard() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   Sub-components (in-file, small enough not to split)
+   Sub-components
    ══════════════════════════════════════════════════════════ */
 
 function PriorityCard({ action }) {
@@ -424,7 +428,7 @@ function estimateFundingGap(user) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   Icons — inline SVG
+   Icons
    ══════════════════════════════════════════════════════════ */
 
 function iconProps(size = 18) {

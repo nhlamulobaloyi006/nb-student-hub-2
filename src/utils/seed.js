@@ -146,21 +146,24 @@ export function buildDemoUser(prev = {}) {
     ],
   };
 
-  /* 6 ── Streaks */
+  /* 6 ── Streaks — a live 5-day streak with realistic minutes */
+  /* 6 ── Streaks — a live 5-day streak with per-subject minutes */
+  /* 6 ── Streaks — check-in based, 5-day live streak */
   current.streaks = {
     current: 5,
     longest: 12,
-    history: [
-      { date: iso(-4), subject: 'Mathematics',       minutes: 45 },
-      { date: iso(-3), subject: 'English',           minutes: 30 },
-      { date: iso(-2), subject: 'Mathematics',       minutes: 50 },
-      { date: iso(-1), subject: 'Physical Sciences', minutes: 40 },
-      { date: iso(0),  subject: 'Mathematics',       minutes: 45 },
+    checkins: [
+      iso(-4),
+      iso(-3),
+      iso(-2),
+      iso(-1),
+      iso(0),
     ],
-    weeklyGoalsCompleted: 5,
-    weeklyGoalsTotal: 5,
+    brokenStreak: null,
+    graceDayLastUsed: null,
+    lastGraceDay: null,
+    comebackEarned: false,
   };
-
   /* 7 ── Saved estimates */
   current.savedEstimates = [
     {

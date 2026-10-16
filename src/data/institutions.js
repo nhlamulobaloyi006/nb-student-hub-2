@@ -4,7 +4,17 @@
  * Application dates are demo data — always verify on the official site.
  */
 
-export const INSTITUTIONS = [
+
+const DAY_MS = 86400000;
+
+function isoFromDays(days) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+const RAW = [
   {
     id: 'uj',
     name: 'University of Johannesburg',
@@ -15,8 +25,8 @@ export const INSTITUTIONS = [
     location: 'Johannesburg, Gauteng',
     logoKey: 'uj',
     website: 'https://www.uj.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 45,
     applicationFee: 200,
     nbt: false,
     description:
@@ -35,8 +45,8 @@ export const INSTITUTIONS = [
     location: 'Braamfontein, Johannesburg',
     logoKey: 'wits',
     website: 'https://www.wits.ac.za',
-    applicationOpen: '2026-03-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -200,
+    applicationCloseDays: 30,
     applicationFee: 100,
     nbt: true,
     description:
@@ -55,8 +65,8 @@ export const INSTITUTIONS = [
     location: 'Rondebosch, Cape Town',
     logoKey: 'uct',
     website: 'https://www.uct.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-07-31',
+    applicationOpenDays: -180,
+    applicationCloseDays: 20,
     applicationFee: 100,
     nbt: true,
     description:
@@ -75,8 +85,8 @@ export const INSTITUTIONS = [
     location: 'Hatfield, Pretoria',
     logoKey: 'up',
     website: 'https://www.up.ac.za',
-    applicationOpen: '2026-03-01',
-    applicationClose: '2026-07-31',
+    applicationOpenDays: -220,
+    applicationCloseDays: 90,
     applicationFee: 300,
     nbt: false,
     description:
@@ -95,8 +105,8 @@ export const INSTITUTIONS = [
     location: 'Pretoria, Gauteng',
     logoKey: 'tut',
     website: 'https://www.tut.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 55,
     applicationFee: 240,
     nbt: false,
     description:
@@ -115,8 +125,8 @@ export const INSTITUTIONS = [
     location: 'Durban, KwaZulu-Natal',
     logoKey: 'dut',
     website: 'https://www.dut.ac.za',
-    applicationOpen: '2026-03-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -200,
+    applicationCloseDays: 45,
     applicationFee: 250,
     nbt: false,
     description:
@@ -135,8 +145,8 @@ export const INSTITUTIONS = [
     location: 'Cape Town, Western Cape',
     logoKey: 'cput',
     website: 'https://www.cput.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 40,
     applicationFee: 100,
     nbt: false,
     description:
@@ -155,8 +165,8 @@ export const INSTITUTIONS = [
     location: 'Vanderbijlpark, Gauteng',
     logoKey: 'vut',
     website: 'https://www.vut.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 60,
     applicationFee: 150,
     nbt: false,
     description:
@@ -175,8 +185,8 @@ export const INSTITUTIONS = [
     location: 'Potchefstroom, North West',
     logoKey: 'nwu',
     website: 'https://www.nwu.ac.za',
-    applicationOpen: '2026-03-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -220,
+    applicationCloseDays: 75,
     applicationFee: 200,
     nbt: false,
     description:
@@ -195,8 +205,8 @@ export const INSTITUTIONS = [
     location: 'Bloemfontein, Free State',
     logoKey: 'ufs',
     website: 'https://www.ufs.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 35,
     applicationFee: 245,
     nbt: true,
     description:
@@ -215,8 +225,8 @@ export const INSTITUTIONS = [
     location: 'Makhanda, Eastern Cape',
     logoKey: 'ru',
     website: 'https://www.ru.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-09-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 25,
     applicationFee: 100,
     nbt: false,
     description:
@@ -235,8 +245,8 @@ export const INSTITUTIONS = [
     location: 'Stellenbosch, Western Cape',
     logoKey: 'sun',
     website: 'https://www.sun.ac.za',
-    applicationOpen: '2026-04-01',
-    applicationClose: '2026-07-31',
+    applicationOpenDays: -180,
+    applicationCloseDays: 15,
     applicationFee: 100,
     nbt: true,
     description:
@@ -255,8 +265,8 @@ export const INSTITUTIONS = [
     location: 'Pretoria, Gauteng',
     logoKey: 'tvt',
     website: 'https://www.tnc.edu.za',
-    applicationOpen: '2026-08-01',
-    applicationClose: '2026-11-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 50,
     applicationFee: 0,
     nbt: false,
     description:
@@ -275,8 +285,8 @@ export const INSTITUTIONS = [
     location: 'Cape Town, Western Cape',
     logoKey: 'fetc',
     website: 'https://www.falsebaycollege.co.za',
-    applicationOpen: '2026-07-01',
-    applicationClose: '2026-11-30',
+    applicationOpenDays: -180,
+    applicationCloseDays: 42,
     applicationFee: 0,
     nbt: false,
     description:
@@ -295,8 +305,8 @@ export const INSTITUTIONS = [
     location: 'Johannesburg, Gauteng',
     logoKey: 'rosebank',
     website: 'https://www.rosebankcollege.co.za',
-    applicationOpen: '2026-01-01',
-    applicationClose: '2026-12-15',
+    applicationOpenDays: -180,
+    applicationCloseDays: 40,
     applicationFee: 500,
     nbt: false,
     description:
@@ -315,8 +325,8 @@ export const INSTITUTIONS = [
     location: 'Durban, KwaZulu-Natal',
     logoKey: 'varsity',
     website: 'https://www.varsitycollege.co.za',
-    applicationOpen: '2026-01-01',
-    applicationClose: '2026-12-15',
+    applicationOpenDays: -180,
+    applicationCloseDays: 40,
     applicationFee: 500,
     nbt: false,
     description:
@@ -327,6 +337,11 @@ export const INSTITUTIONS = [
   },
 ];
 
+export const INSTITUTIONS = RAW.map((i) => ({
+  ...i,
+  applicationOpen:  i.applicationOpenDays  != null ? isoFromDays(i.applicationOpenDays)  : null,
+  applicationClose: i.applicationCloseDays != null ? isoFromDays(i.applicationCloseDays) : null,
+}));
 
 export const INSTITUTION_BY_ID = INSTITUTIONS.reduce((acc, i) => {
   acc[i.id] = i;

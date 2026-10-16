@@ -32,7 +32,7 @@ export default function SignUp() {
     setBusy(true);
     try {
       signUp({ name, email, password });
-      navigate('/profile', { replace: true });
+      navigate('/onboarding', { replace: true });
     } catch (err) {
       setError(err.message || 'Could not create account.');
     } finally {

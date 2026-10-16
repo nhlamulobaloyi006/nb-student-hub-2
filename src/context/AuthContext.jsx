@@ -76,6 +76,7 @@ function makeDefaultUser({ name, email, passwordHash }) {
     interests: [],
     aps: 0,
     subjectMarks: {},
+    onboardingComplete: false,
     savedItems: [],
     futureGoal: '',
     applications: [],
@@ -83,9 +84,11 @@ function makeDefaultUser({ name, email, passwordHash }) {
     streaks: {
       current: 0,
       longest: 0,
-      history: [],
-      weeklyGoalsCompleted: 0,
-      weeklyGoalsTotal: 5,
+      checkins: [],
+      brokenStreak: null,
+      graceDayLastUsed: null,
+      lastGraceDay: null,
+      comebackEarned: false,
     },
     preferences: {
       notifications: true,

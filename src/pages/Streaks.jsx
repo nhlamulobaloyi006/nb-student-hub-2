@@ -1,299 +1,394 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+  RULES,
+  hasCheckedInToday,
+  computeCurrentStreak,
+  countThisMonth,
+  countThisWeek,
+  applyBreakRules,
+  checkInToday,
+} from '../utils/streaks';
 import './Streaks.css';
 
-const SUBJECT_PROGRESS = [
-  { name: 'Mathematics',           pct: 70 },
-  { name: 'English',               pct: 85 },
-  { name: 'Life Orientation',      pct: 95 },
-  { name: 'Business Applications', pct: 55 },
+/* ============================================================
+   Constants
+   ============================================================ */
+
+const BADGE_DEFS = [
+  { id: 'comeback',   name: 'Comeback Kid', sub: 'Restored a broken streak', iconKey: 'seed',   tone: 'green' },
+  { id: 'consistent', name: 'Consistent',   sub: '7-day streak reached',     iconKey: 'flame',  tone: 'gold' },
+  { id: 'goal',       name: 'Goal Getter',  sub: '20-day streak reached',    iconKey: 'target', tone: 'green' },
+  { id: 'hero',       name: 'Study Hero',   sub: '50-day streak reached',    iconKey: 'trophy', tone: 'indigo' },
 ];
 
-const BADGES = [
-  { id: 'consistent',  name: 'Consistent',   sub: '7-day streak reached',     iconKey: 'flame',   tone: 'gold' },
-  { id: 'goal-getter', name: 'Goal Getter',  sub: '5 weekly goals completed', iconKey: 'target',  tone: 'green' },
-  { id: 'study-hero',  name: 'Study Hero',   sub: '10 past papers completed', iconKey: 'trophy',  tone: 'indigo' },
-  { id: 'early-bird',  name: 'Early Bird',   sub: '5 morning sessions',       iconKey: 'sunrise', tone: 'amber' },
-  { id: 'focused',     name: 'Focused',      sub: '3 hours logged in a day',  iconKey: 'brain',   tone: 'purple' },
-  { id: 'comeback',    name: 'Comeback',     sub: 'Restarted after a break',  iconKey: 'seed',    tone: 'green' },
-];
+const WEEKDAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+/* ============================================================
+   Main
+   ============================================================ */
 
 export default function Streaks() {
   const { user, updateUser } = useAuth();
-  const streaks = user?.streaks || defaultStreaks();
 
-  const [logging, setLogging] = useState(false);
+  /* Break detection on mount */
+  useEffect(() => {
+    if (!user?.streaks) return;
+    const result = applyBreakRules(user.streaks);
+    if (result.changed) {
+      updateUser({ streaks: result.streaks });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]);
 
-  const weekDays = useMemo(() => buildWeekStrip(streaks.history || []), [streaks.history]);
+  const streaks = user?.streaks || {
+    current: 0, longest: 0, checkins: [],
+    brokenStreak: null, graceDayLastUsed: null,
+  };
 
-  const papersThisWeek = useMemo(() => {
-    const now = Date.now();
-    return (streaks.history || []).filter((h) => {
-      const d = new Date(h.date + 'T00:00:00').getTime();
-      const diff = (now - d) / 86400000;
-      return diff >= 0 && diff < 7 && h.subject;
-    }).length;
-  }, [streaks.history]);
+  const doneToday = hasCheckedInToday(streaks);
+  const { current, atRiskToday } = useMemo(
+    () => computeCurrentStreak(streaks.checkins || []),
+    [streaks.checkins]
+  );
+  const thisMonth = useMemo(
+    () => countThisMonth(streaks.checkins || []),
+    [streaks.checkins]
+  );
+  const thisWeek = useMemo(
+    () => countThisWeek(streaks.checkins || []),
+    [streaks.checkins]
+  );
 
-  function handleStartStudying() {
-    if (logging) return;
-    setLogging(true);
-
-    const today = new Date().toISOString().slice(0, 10);
-    const entry = { date: today, subject: 'Mathematics', minutes: 45 };
-
-    const history = [...(streaks.history || []), entry];
-    const uniqueDays = new Set(history.map((h) => h.date));
-    const current = computeCurrentStreak(Array.from(uniqueDays));
-    const weeklyGoalsCompleted = Math.min(5, distinctDaysThisWeek(uniqueDays));
-
-    updateUser({
-      streaks: {
-        ...streaks,
-        history,
-        current,
-        longest: Math.max(streaks.longest || 0, current),
-        weeklyGoalsCompleted,
-        weeklyGoalsTotal: 5,
-      },
-    });
-
-    setTimeout(() => setLogging(false), 600);
+  function handleCheckIn() {
+    if (doneToday) return;
+    const result = checkInToday(streaks);
+    if (result.changed) {
+      updateUser({ streaks: result.streaks });
+    }
   }
+
+  const streakState = getStreakState(streaks, doneToday, atRiskToday);
 
   return (
     <div className="st">
       <header className="st-head">
         <div>
           <h1 className="st-title">Your momentum</h1>
-          <p className="st-sub">Small consistent steps add up. Keep showing up.</p>
+          <p className="st-sub">Check in every day. Small steps add up.</p>
         </div>
       </header>
 
-      <div className="st-body">
-        <div className="st-main">
-          <section className="st-hero">
-            <div className="st-hero-glow" aria-hidden="true" />
-            <div className="st-hero-content">
-              <div className="st-hero-flame" aria-hidden="true"><FlameIcon size={42} /></div>
-              <div className="st-hero-text">
-                <div className="st-hero-title">
-                  {streaks.current} day{streaks.current === 1 ? '' : 's'} in a row
-                </div>
-                <div className="st-hero-sub">
-                  {streaks.current >= 3 ? 'Keep it going!' : 'Every day counts. Start today.'}
-                </div>
-              </div>
-              <div className="st-hero-stats">
-                <div className="st-hero-stat">
-                  <div className="st-hero-stat-value">{streaks.longest || 0}</div>
-                  <div className="st-hero-stat-label">Longest streak</div>
-                </div>
-                <div className="st-hero-stat">
-                  <div className="st-hero-stat-value">{streaks.history?.length || 0}</div>
-                  <div className="st-hero-stat-label">Total sessions</div>
-                </div>
-              </div>
-            </div>
-          </section>
+      {/* 1. Check-in card */}
+      <CheckInCard
+        doneToday={doneToday}
+        current={current}
+        atRiskToday={atRiskToday}
+        brokenStreak={streaks.brokenStreak}
+        onCheckIn={handleCheckIn}
+      />
 
-          <section className="st-card">
-            <div className="st-card-head">
-              <div className="st-card-title">This week</div>
-              <div className="st-card-sub">
-                {weekDays.filter((d) => d.active).length} of 7 days active
-              </div>
+      {/* 2. Streak hero */}
+      <section className={`st-hero st-hero-${streakState.tone}`}>
+        <div className="st-hero-glow" aria-hidden="true" />
+        <div className="st-hero-content">
+          <div className={`st-hero-flame st-hero-flame-${streakState.tone}`}>
+            {streakState.tone === 'ash' ? <AshIcon /> : <FlameIcon size={42} />}
+          </div>
+          <div className="st-hero-text">
+            <div className="st-hero-title">{streakState.headline}</div>
+            <div className="st-hero-sub">{streakState.sub}</div>
+          </div>
+          <div className="st-hero-stats">
+            <div className="st-hero-stat">
+              <div className="st-hero-stat-value">{streaks.longest || 0}</div>
+              <div className="st-hero-stat-label">Longest</div>
             </div>
-            <div className="st-week">
-              {weekDays.map((d) => (
-                <div
-                  key={d.iso}
-                  className={
-                    'st-week-day' +
-                    (d.active ? ' is-active' : '') +
-                    (d.isToday ? ' is-today' : '') +
-                    (d.isFuture ? ' is-future' : '')
-                  }
-                >
-                  <span className="st-week-dot" />
-                  <span className="st-week-letter">{d.letter}</span>
-                  <span className="st-week-date">{d.dayNum}</span>
-                </div>
-              ))}
+            <div className="st-hero-stat">
+              <div className="st-hero-stat-value">{thisMonth}</div>
+              <div className="st-hero-stat-label">This month</div>
             </div>
-          </section>
-
-          <section className="st-card">
-            <div className="st-card-head">
-              <div className="st-card-title">Subject progress</div>
-              <div className="st-card-sub">Based on your study sessions</div>
-            </div>
-            <div className="st-subjects">
-              {SUBJECT_PROGRESS.map((s) => (
-                <div key={s.name} className="st-subject">
-                  <div className="st-subject-top">
-                    <span className="st-subject-name">{s.name}</span>
-                    <span className="st-subject-pct">{s.pct}%</span>
-                  </div>
-                  <div className="st-subject-bar">
-                    <div className="st-subject-bar-fill" style={{ width: `${s.pct}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="st-card st-card-row">
-            <div className="st-card-icon st-card-icon-indigo" aria-hidden="true">
-              <FileIcon />
-            </div>
-            <div className="st-card-row-body">
-              <div className="st-card-title">
-                {papersThisWeek} past paper{papersThisWeek === 1 ? '' : 's'} completed this week
-              </div>
-              <div className="st-card-sub">
-                {papersThisWeek >= 3
-                  ? 'Nice pace — past papers beat re-reading notes.'
-                  : 'Try to hit 3+ this week. It makes a real difference.'}
-              </div>
-            </div>
-          </section>
+          </div>
         </div>
+      </section>
 
-        <aside className="st-rail">
-          <section className="st-card st-goal">
-            <div className="st-goal-label">TODAY'S GOAL</div>
-            <div className="st-goal-title">Complete one Mathematics past paper.</div>
-            <div className="st-goal-sub">About 45 minutes. Focused, timed, no phone.</div>
-            <button
-              type="button"
-              className="btn btn-primary btn-block st-goal-cta"
-              onClick={handleStartStudying}
-              disabled={logging}
-            >
-              {logging ? 'Logging…' : 'Start studying'}
-              {!logging && <MiniArrow />}
-            </button>
-          </section>
+      {/* 3. Week strip */}
+      <WeekStrip checkins={streaks.checkins || []} />
 
-          <section className="st-card">
-            <div className="st-card-head">
-              <div className="st-card-title">Weekly goals</div>
+      {/* 4. Progress cards */}
+      <div className="st-two">
+        <section className="st-card st-card-tight">
+          <div className="st-card-icon st-card-icon-gold"><FlameIcon size={18} /></div>
+          <div className="st-card-row-body">
+            <div className="st-card-title">{thisWeek} of 7 days this week</div>
+            <div className="st-card-sub">
+              {thisWeek >= 5
+                ? 'Strong week. Keep it up.'
+                : thisWeek >= 2
+                  ? 'Good pace. Aim for 5+ this week.'
+                  : 'Try to check in at least 5 days this week.'}
             </div>
-            <div className="st-wgoal">
-              <div className="st-wgoal-num">
-                {streaks.weeklyGoalsCompleted || 0}
-                <span className="st-wgoal-num-total">/{streaks.weeklyGoalsTotal || 5}</span>
-              </div>
-              <div className="st-wgoal-text">
-                goals completed
-                <div className="st-wgoal-sub">Resets every Monday</div>
-              </div>
-            </div>
-            <div className="st-wgoal-bar">
-              <div
-                className="st-wgoal-bar-fill"
-                style={{
-                  width: `${((streaks.weeklyGoalsCompleted || 0) / (streaks.weeklyGoalsTotal || 5)) * 100}%`,
-                }}
-              />
-            </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="st-card">
-            <div className="st-card-head">
-              <div className="st-card-title">Badges</div>
-              <button type="button" className="st-view-all">View all</button>
+        <section className="st-card st-card-tight">
+          <div className="st-card-icon st-card-icon-indigo"><TargetIcon /></div>
+          <div className="st-card-row-body">
+            <div className="st-card-title">
+              {thisMonth} / {RULES.THIS_MONTH_TARGET} check-ins this month
             </div>
-            <div className="st-badges">
-              {BADGES.slice(0, 3).map((b) => (
-                <div key={b.id} className={`st-badge st-badge-${b.tone}`}>
-                  <span className="st-badge-icon" aria-hidden="true">
-                    <BadgeIcon iconKey={b.iconKey} />
-                  </span>
-                  <span className="st-badge-body">
-                    <span className="st-badge-name">{b.name}</span>
-                    <span className="st-badge-sub">{b.sub}</span>
-                  </span>
-                </div>
-              ))}
+            <div className="st-card-sub">
+              {thisMonth >= RULES.THIS_MONTH_TARGET
+                ? "You've hit the monthly goal."
+                : `${RULES.THIS_MONTH_TARGET - thisMonth} more to hit the monthly goal.`}
             </div>
-          </section>
-        </aside>
+          </div>
+        </section>
       </div>
+
+      {/* 5. Recent check-ins */}
+      <RecentCheckins checkins={streaks.checkins || []} />
+
+      {/* 6. Badges */}
+      <section className="st-card">
+        <div className="st-card-head">
+          <div className="st-card-title">Badges</div>
+        </div>
+        <div className="st-badges">
+          {BADGE_DEFS.map((b) => (
+            <div key={b.id} className={`st-badge st-badge-${b.tone}`}>
+              <span className="st-badge-icon"><BadgeIcon iconKey={b.iconKey} /></span>
+              <span className="st-badge-body">
+                <span className="st-badge-name">{b.name}</span>
+                <span className="st-badge-sub">{b.sub}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
-   Helpers
-   ══════════════════════════════════════════════════════════ */
+/* ============================================================
+   Check-in card
+   ============================================================ */
 
-function defaultStreaks() {
-  return { current: 0, longest: 0, history: [], weeklyGoalsCompleted: 0, weeklyGoalsTotal: 5 };
+function CheckInCard({ doneToday, current, atRiskToday, brokenStreak, onCheckIn }) {
+  const broken = !!brokenStreak;
+
+  return (
+    <section className={`st-session${doneToday ? ' is-done' : ''}${broken ? ' st-session-restore' : ''}`}>
+      <div className="st-session-head">
+        <div className="st-session-label">
+          {broken ? 'RESTORE YOUR STREAK' : "TODAY'S CHECK-IN"}
+        </div>
+        {doneToday && (
+          <span className="st-done-badge"><CheckIcon /> Done today</span>
+        )}
+      </div>
+
+      {broken && !doneToday && (
+        <div className="st-session-restore-body">
+          <div className="st-session-restore-title">
+            Check in to bring it back
+          </div>
+          <div className="st-session-restore-sub">
+            You lost your {brokenStreak.count > 0 ? brokenStreak.count + '-day' : ''} streak.
+            One check-in today and it's back.
+          </div>
+        </div>
+      )}
+
+      {!broken && !doneToday && atRiskToday && (
+        <div className="st-session-restore-body">
+          <div className="st-session-restore-title">
+            Don't lose your {current}-day streak
+          </div>
+          <div className="st-session-restore-sub">
+            You haven't checked in yet today.
+          </div>
+        </div>
+      )}
+
+      {!broken && !doneToday && !atRiskToday && current === 0 && (
+        <div className="st-session-restore-body">
+          <div className="st-session-restore-title">
+            Start a new streak
+          </div>
+          <div className="st-session-restore-sub">
+            Check in today to get the flame going.
+          </div>
+        </div>
+      )}
+
+      {doneToday && (
+        <div className="st-session-restore-body">
+          <div className="st-session-restore-title">
+            You're checked in for today
+          </div>
+          <div className="st-session-restore-sub">
+            Come back tomorrow to keep it going.
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={
+          'btn btn-block st-session-btn ' +
+          (doneToday ? 'btn-outline st-session-btn-done' : 'btn-primary')
+        }
+        onClick={onCheckIn}
+        disabled={doneToday}
+      >
+        {doneToday ? (
+          <>
+            <CheckIcon /> Checked in today
+          </>
+        ) : (
+          <>
+            <FlameIcon size={16} /> Check in today
+          </>
+        )}
+      </button>
+    </section>
+  );
 }
 
-function buildWeekStrip(history) {
+/* ============================================================
+   Week strip
+   ============================================================ */
+
+function WeekStrip({ checkins }) {
+  const set = useMemo(() => new Set(checkins || []), [checkins]);
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dayIndex = (today.getDay() + 6) % 7;
+  const dayIndex = (today.getDay() + 6) % 7; // Mon = 0
 
-  const activeDates = new Set((history || []).map((h) => h.date));
-  const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-  return letters.map((letter, i) => {
+  const days = WEEKDAY_LETTERS.map((letter, i) => {
     const d = new Date(today);
     d.setDate(d.getDate() - dayIndex + i);
     const iso = d.toISOString().slice(0, 10);
     return {
       iso, letter,
-      dayNum: d.getDate(),
       isToday: i === dayIndex,
       isFuture: i > dayIndex,
-      active: activeDates.has(iso) && i <= dayIndex,
+      active: set.has(iso) && i <= dayIndex,
     };
   });
+
+  return (
+    <section className="st-card">
+      <div className="st-card-head">
+        <div className="st-card-title">This week</div>
+        <div className="st-card-sub">
+          {days.filter((d) => d.active).length} of 7 days checked in
+        </div>
+      </div>
+      <div className="st-week">
+        {days.map((d) => (
+          <div
+            key={d.iso}
+            className={
+              'st-week-day' +
+              (d.active ? ' is-active' : '') +
+              (d.isToday ? ' is-today' : '') +
+              (d.isFuture ? ' is-future' : '')
+            }
+          >
+            <span className="st-week-dot">
+              {d.active && <CheckIcon />}
+            </span>
+            <span className="st-week-letter">{d.letter}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
-function computeCurrentStreak(sortedIsos) {
-  if (!sortedIsos.length) return 0;
-  const dates = sortedIsos.map((iso) => new Date(iso + 'T00:00:00').getTime()).sort((a, b) => b - a);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayMs = today.getTime();
-  const ONE_DAY = 86400000;
+/* ============================================================
+   Recent check-ins
+   ============================================================ */
 
-  const first = dates[0];
-  const gap = (todayMs - first) / ONE_DAY;
-  if (gap > 1) return 0;
+function RecentCheckins({ checkins }) {
+  const sorted = useMemo(
+    () => [...(checkins || [])].sort((a, b) => b.localeCompare(a)).slice(0, 10),
+    [checkins]
+  );
 
-  let streak = 1;
-  for (let i = 1; i < dates.length; i++) {
-    const diff = (dates[i - 1] - dates[i]) / ONE_DAY;
-    if (diff === 1) streak += 1;
-    else break;
+  return (
+    <section className="st-card">
+      <div className="st-card-head">
+        <div className="st-card-title">Recent check-ins</div>
+      </div>
+      {sorted.length === 0 ? (
+        <div className="st-empty-compact">No check-ins yet. Tap the button above.</div>
+      ) : (
+        <div className="st-history">
+          {sorted.map((iso) => (
+            <div key={iso} className="st-history-row">
+              <span className="st-history-date-inline">{formatDayLabel(iso)}</span>
+              <span className="st-history-status">
+                <CheckIcon /> Checked in
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+
+function getStreakState(streaks, doneToday, atRiskToday) {
+  const current = streaks.current || 0;
+  const broken = !!streaks.brokenStreak;
+
+  if (broken) {
+    return {
+      tone: 'ash',
+      headline: 'Your streak is resting',
+      sub: 'Check in today to wake it back up.',
+    };
   }
-  return streak;
+  if (current === 0 && !doneToday) {
+    return {
+      tone: 'idle',
+      headline: 'Start a new streak',
+      sub: 'Check in today to get the flame going.',
+    };
+  }
+  if (!doneToday && atRiskToday) {
+    return {
+      tone: 'risk',
+      headline: `${current} day${current === 1 ? '' : 's'} — at risk today`,
+      sub: 'Check in to keep it alive.',
+    };
+  }
+  return {
+    tone: 'gold',
+    headline: `${current} day${current === 1 ? '' : 's'} in a row`,
+    sub: current >= 3 ? 'Keep it going!' : 'Every day counts.',
+  };
 }
 
-function distinctDaysThisWeek(isoSet) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dayIndex = (today.getDay() + 6) % 7;
-  const monday = new Date(today);
-  monday.setDate(monday.getDate() - dayIndex);
-  const mondayMs = monday.getTime();
-  const ONE_DAY = 86400000;
-
-  return isoSet.filter((iso) => {
-    const t = new Date(iso + 'T00:00:00').getTime();
-    return t >= mondayMs && t <= mondayMs + 7 * ONE_DAY;
-  }).length;
+function formatDayLabel(iso) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = new Date(iso + 'T00:00:00');
+  const diff = Math.round((today - d) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString('en-ZA', { weekday: 'short', day: '2-digit', month: 'short' });
 }
 
-/* ══════════════════════════════════════════════════════════
-   Icons — SVG only. NO emojis.
-   ══════════════════════════════════════════════════════════ */
+/* ============================================================
+   Icons
+   ============================================================ */
 
 function iconProps(size = 16) {
   return {
@@ -303,27 +398,30 @@ function iconProps(size = 16) {
     'aria-hidden': true,
   };
 }
-function MiniArrow() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="2.4"
-         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12h14M13 5l7 7-7 7" />
-    </svg>
-  );
-}
-
 function FlameIcon({ size = 42 }) { return (<svg {...iconProps(size)}>
   <path d="M12 3c1.5 3 5 4.6 5 8.5A5 5 0 0 1 7 12c0-1.4.5-2.4 1.2-3.2C9.4 7.4 11 6 12 3z" />
   <path d="M12 21a3.5 3.5 0 0 1-2-6.4c.4 1.4 1 1.9 2 2 .2-1.2 0-2.2-.4-3 1.6 1.2 3.4 2.7 3.4 4.9A3.5 3.5 0 0 1 12 21z" />
 </svg>); }
-function FileIcon() { return (<svg {...iconProps(18)}>
-  <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-  <path d="M14 3v5h5" />
-  <path d="M9 13h6M9 17h4" />
+function AshIcon() { return (<svg {...iconProps(42)}>
+  <path d="M6 16h12" />
+  <path d="M7 19h10" />
+  <path d="M9 13c.5-1.5 1.5-2.5 3-2.5s2.5 1 3 2.5" />
+  <circle cx="10" cy="9" r="1" fill="currentColor" stroke="none" />
+  <circle cx="14" cy="8.5" r="0.8" fill="currentColor" stroke="none" />
+  <circle cx="12" cy="6.5" r="0.7" fill="currentColor" stroke="none" />
 </svg>); }
-
-/* Badge icons — every badge maps to its own SVG, no emoji */
+function CheckIcon() { return (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" strokeWidth="3"
+       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="m4 12 5 5L20 6" />
+  </svg>
+); }
+function TargetIcon() { return (<svg {...iconProps(18)}>
+  <circle cx="12" cy="12" r="9" />
+  <circle cx="12" cy="12" r="5" />
+  <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+</svg>); }
 function BadgeIcon({ iconKey }) {
   const props = iconProps(18);
   switch (iconKey) {
@@ -344,24 +442,12 @@ function BadgeIcon({ iconKey }) {
         <path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3" />
         <path d="M10 12v4h4v-4M9 20h6M12 16v4" />
       </svg>);
-    case 'sunrise':
-      return (<svg {...props}>
-        <path d="M3 19h18" />
-        <path d="M6 15a6 6 0 0 1 12 0" />
-        <path d="M12 3v4M5.5 6.5 7 8M18.5 6.5 17 8M3 11h2M19 11h2" />
-      </svg>);
-    case 'brain':
-      return (<svg {...props}>
-        <path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-1 5.8v.2a3 3 0 0 0 3 3v1a3 3 0 0 0 4 2.8V4.5A3 3 0 0 0 9 4z" />
-        <path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 1 5.8v.2a3 3 0 0 1-3 3v1a3 3 0 0 1-4 2.8V4.5A3 3 0 0 1 15 4z" />
-      </svg>);
     case 'seed':
+    default:
       return (<svg {...props}>
         <path d="M12 21v-7" />
         <path d="M12 14a5 5 0 0 0-5-5H5a5 5 0 0 1 5-5" />
         <path d="M12 14a5 5 0 0 1 5-5h2a5 5 0 0 0-5-5" />
       </svg>);
-    default:
-      return (<svg {...props}><circle cx="12" cy="12" r="9" /></svg>);
   }
 }

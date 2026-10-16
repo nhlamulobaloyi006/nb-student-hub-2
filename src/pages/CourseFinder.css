@@ -570,3 +570,52 @@
   }
   .cf-detail-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* Matches-only chip sits first in the filter row */
+.cf-chip-matches.is-active {
+  background: var(--success);
+  border-color: var(--success);
+  color: #052E16;
+}
+
+
+/* ============================================================
+   Guided glow on the Apply button (one-shot from onboarding)
+   ============================================================ */
+
+.cf-save-cta.is-guided {
+  position: relative;
+  animation: cf-pulse 1.6s ease-in-out infinite;
+}
+@keyframes cf-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 66, 0.55); }
+  50%      { box-shadow: 0 0 0 10px rgba(245, 197, 66, 0); }
+}
+
+.cf-guided-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #0A0E1A;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(245, 197, 66, 0.35);
+  pointer-events: none;
+  z-index: 5;
+}
+.cf-guided-tip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--gold);
+}
+.cf-detail-footer { position: relative; }

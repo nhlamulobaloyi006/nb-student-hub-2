@@ -8,14 +8,15 @@ import SplashScreen from './components/SplashScreen';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 
+import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Roadmap from './pages/Roadmap';
 import FutureGoal from './pages/FutureGoal';
 import Profile from './pages/Profile';
 import CourseFinder from './pages/CourseFinder';
 import Institutions from './pages/Institutions';
-import Careers from './pages/Careers';
 import InstitutionDetail from './pages/InstitutionDetail';
+import Careers from './pages/Careers';
 import Funding from './pages/Funding';
 import CostPlanner from './pages/CostPlanner';
 import ApplicationTracker from './pages/ApplicationTracker';
@@ -25,7 +26,7 @@ import Streaks from './pages/Streaks';
 import AICompanion from './pages/AICompanion';
 import Settings from './pages/Settings';
 
-/** Wrap a protected page with the app shell. */
+/** Wrap a page with the app shell (sidebar, mobile nav, notifications). */
 function Shell({ children }) {
   return (
     <ProtectedRoute>
@@ -34,11 +35,16 @@ function Shell({ children }) {
   );
 }
 
+/** Wizard pages don't use the shell — full-screen experience. */
+function Bare({ children }) {
+  return <ProtectedRoute>{children}</ProtectedRoute>;
+}
+
 export default function App() {
   const [splashDone, setSplashDone] = useState(() => {
-    // Show splash once per session. Persisted in sessionStorage.
     return sessionStorage.getItem('nb_splash_seen') === '1';
   });
+
   function handleSplashDone() {
     sessionStorage.setItem('nb_splash_seen', '1');
     setSplashDone(true);
@@ -53,15 +59,18 @@ export default function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 
-          {/* Protected — all wrapped in the shell */}
+          {/* Onboarding — full-screen, no shell */}
+          <Route path="/onboarding" element={<Bare><Onboarding /></Bare>} />
+
+          {/* Protected — normal shell */}
           <Route path="/dashboard"    element={<Shell><Dashboard /></Shell>} />
           <Route path="/roadmap"      element={<Shell><Roadmap /></Shell>} />
           <Route path="/future"       element={<Shell><FutureGoal /></Shell>} />
           <Route path="/profile"      element={<Shell><Profile /></Shell>} />
           <Route path="/courses"      element={<Shell><CourseFinder /></Shell>} />
           <Route path="/institutions" element={<Shell><Institutions /></Shell>} />
-          <Route path="/careers" element={<Shell><Careers /></Shell>} />
           <Route path="/institutions/:id" element={<Shell><InstitutionDetail /></Shell>} />
+          <Route path="/careers"      element={<Shell><Careers /></Shell>} />
           <Route path="/funding"      element={<Shell><Funding /></Shell>} />
           <Route path="/cost-planner" element={<Shell><CostPlanner /></Shell>} />
           <Route path="/applications" element={<Shell><ApplicationTracker /></Shell>} />

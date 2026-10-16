@@ -31,7 +31,9 @@ export default function CourseFinder() {
 
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [addMode, setAddMode] = useState(() => searchParams.get('add') === '1');
+  const [guidedCourse, setGuidedCourse] = useState(null); // shows glow on Apply button
   const [streamFilter, setStreamFilter] = useState('all');
+  const [matchesOnly, setMatchesOnly] = useState(() => searchParams.get('matches') === 'only');
   const [sort, setSort] = useState('relevant');
   const [selectedId, setSelectedId] = useState(() => {
     const q = searchParams.get('q');
@@ -76,6 +78,10 @@ export default function CourseFinder() {
       });
     }
 
+    if (matchesOnly) {
+      list = list.filter(({ elig }) => elig.status === 'pass');
+    }
+
     const eligibleFirst = (a, b) => {
       const order = { pass: 0, warn: 1, unknown: 2, fail: 3 };
       return (order[a.elig.status] ?? 9) - (order[b.elig.status] ?? 9);
@@ -90,7 +96,7 @@ export default function CourseFinder() {
     }
 
     return list;
-  }, [query, streamFilter, sort, user]);
+  }, [query, streamFilter, sort, user, matchesOnly]);
 
   const selected = selectedId ? COURSE_BY_ID[selectedId] : null;
   const selectedElig = selected ? checkEligibility(selected, user) : null;
@@ -141,7 +147,7 @@ export default function CourseFinder() {
     };
 
     updateUser({ applications: [...(user?.applications || []), app] });
-    navigate('/applications');
+    navigate('/applications?new=' + encodeURIComponent(course.id));
   }
 
   /* ── Add-mode banner cancel ─────────────────────────── */
@@ -205,6 +211,13 @@ export default function CourseFinder() {
             </div>
 
             <div className="cf-filters">
+              <button
+                type="button"
+                className={'cf-chip cf-chip-matches' + (matchesOnly ? ' is-active' : '')}
+                onClick={() => setMatchesOnly((v) => !v)}
+              >
+                Matches only
+              </button>
               {STREAM_FILTERS.map((f) => (
                 <button
                   key={f.id}
@@ -251,6 +264,11 @@ export default function CourseFinder() {
                   onClick={() => {
                     setSelectedId(course.id);
                     setDetailTab('overview');
+                    // one-shot glow: only if user has no applications yet
+                    if ((user?.applications || []).length === 0) {
+                      setGuidedCourse(course.id);
+                      setTimeout(() => setGuidedCourse(null), 7000);
+                    }
                   }}
                 />
               ))}
@@ -280,6 +298,7 @@ export default function CourseFinder() {
               onSave={() => toggleShortlist(selected.id)}
               onApply={() => startApplication(selected)}
               addMode={addMode}
+              isGuided={guidedCourse === selected.id}
               onBack={() => setSelectedId(null)}
             />
           )}
@@ -346,7 +365,7 @@ function CourseRow({ course, elig, active, onClick }) {
    ══════════════════════════════════════════════════════════ */
 function CourseDetail({
   course, elig, tab, onTab, user,
-  saved, alreadyApplied, onSave, onApply, addMode, onBack,
+  saved, alreadyApplied, onSave, onApply, addMode, isGuided, onBack,
 }) {
   const inst = INSTITUTION_BY_ID[course.universityId];
   const aps = calculateAPS(user?.subjectMarks || {}).total;
@@ -513,9 +532,10 @@ function CourseDetail({
         ) : (
           <button
             type="button"
-            className={'btn ' + (addMode ? 'btn-primary' : 'btn-primary') + ' cf-save-cta'}
+            className={'btn btn-primary cf-save-cta' + (isGuided ? ' is-guided' : '')}
             onClick={onApply}
           >
+            {isGuided && <span className="cf-guided-tip">Click here to apply</span>}
             <ClipboardIcon />
             {addMode ? 'Start application' : 'Add as application'}
           </button>

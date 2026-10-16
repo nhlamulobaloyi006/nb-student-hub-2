@@ -6,6 +6,9 @@ import { COURSE_BY_ID } from '../data/courses';
 import Logo from '../components/Logo';
 
 import './ApplicationTracker.css';
+import FundingMatchModal from '../components/FundingMatchModal';
+import { matchFunding } from '../utils/matchFunding';
+import { useSearchParams } from 'react-router-dom';
 
 const STATUSES = ['Preparing', 'Submitted', 'Pending', 'Accepted', 'Rejected'];
 
@@ -36,6 +39,27 @@ export default function ApplicationTracker() {
   const navigate = useNavigate();
 
   const applications = useMemo(() => user?.applications || [], [user]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [fundingMatch, setFundingMatch] = useState(null);
+
+  // React to ?new=<courseId> — opens the funding modal
+  useEffect(() => {
+    const courseId = searchParams.get('new');
+    if (!courseId) return;
+    const course = COURSE_BY_ID[courseId];
+    if (!course) return;
+    const result = matchFunding(user, course, { max: 6 });
+    setFundingMatch({ course, funds: result.top });
+    // clear the URL param so a refresh doesn't re-open the modal
+    const next = new URLSearchParams(searchParams);
+    next.delete('new');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function closeFundingMatch() {
+    setFundingMatch(null);
+  }
 
   const [selectedId, setSelectedId] = useState(() => applications[0]?.id || null);
   const [sort, setSort] = useState('recent');
@@ -268,6 +292,14 @@ export default function ApplicationTracker() {
           )}
         </aside>
       </div>
+
+      {fundingMatch && (
+        <FundingMatchModal
+          course={fundingMatch.course}
+          funds={fundingMatch.funds}
+          onClose={closeFundingMatch}
+        />
+      )}
     </div>
   );
 }

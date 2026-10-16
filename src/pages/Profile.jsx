@@ -48,8 +48,23 @@ export default function Profile() {
     setDraft((prev) => ({ ...prev, ...patch }));
     setError('');
   }
+
+  /**
+   * Patch subjects AND prune any orphaned marks.
+   * When a user replaces a subject, the old subject's mark must go with it —
+   * otherwise the APS panel sees 7 subjects.
+   */
   function patchSubjects(patch) {
-    setDraft((prev) => ({ ...prev, subjects: { ...prev.subjects, ...patch } }));
+    setDraft((prev) => {
+      const nextSubjects = { ...prev.subjects, ...patch };
+      const picked = collectPickedSubjects(nextSubjects);
+      const pickedSet = new Set(picked);
+      const prunedMarks = {};
+      for (const [k, v] of Object.entries(prev.subjectMarks || {})) {
+        if (pickedSet.has(k)) prunedMarks[k] = v;
+      }
+      return { ...prev, subjects: nextSubjects, subjectMarks: prunedMarks };
+    });
     setError('');
   }
 
@@ -71,7 +86,6 @@ export default function Profile() {
     const autoStream = detectStream({ ...draft, stream: draft.stream });
     const finalStream = draft.stream || autoStream || '';
 
-    // Prune marks for subjects no longer selected
     const picked = collectPickedSubjects(draft.subjects);
     const pickedSet = new Set(picked);
     const prunedMarks = {};

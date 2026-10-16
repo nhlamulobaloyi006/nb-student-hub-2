@@ -1,53 +1,93 @@
-/* ══════════════════════════════════════════════════════════
-   STUDY STREAKS
-   ══════════════════════════════════════════════════════════ */
+/* ============================================================
+   STREAKS — check-in based
+   ============================================================ */
 
-.st { display: flex; flex-direction: column; gap: 22px; }
+.st { display: flex; flex-direction: column; gap: 16px; }
 
-/* ─── Header ─────────────────────────────────────────────── */
-.st-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.st-head { display: flex; flex-direction: column; gap: 6px; }
 .st-title {
   font-family: var(--font-display);
   font-size: 30px; font-weight: 700;
   letter-spacing: -0.02em;
 }
-.st-sub { color: var(--text-2); font-size: 13.5px; margin-top: 6px; }
+.st-sub { color: var(--text-2); font-size: 13.5px; }
 
-/* ─── Body grid ──────────────────────────────────────────── */
-.st-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 22px;
-  align-items: start;
-}
-.st-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.st-rail {
-  display: flex; flex-direction: column; gap: 14px;
-  position: sticky; top: 20px; align-self: start;
-}
+/* ============================================================
+   Check-in card
+   ============================================================ */
 
-/* ─── Cards ──────────────────────────────────────────────── */
-.st-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+.st-session {
+  padding: 20px;
   border-radius: var(--radius-lg);
-  padding: 18px;
+  border: 1px solid var(--gold-ring);
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.06), rgba(245, 197, 66, 0.01));
+  display: flex; flex-direction: column; gap: 14px;
 }
-.st-card-head {
+.st-session.is-done {
+  border-color: rgba(34, 197, 94, 0.28);
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0));
+}
+.st-session-restore {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0));
+}
+
+.st-session-head {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px;
   gap: 12px;
 }
-.st-card-title {
-  font-family: var(--font-display);
-  font-size: 14px; font-weight: 700;
-  color: var(--text);
+.st-session-label {
+  font-size: 10.5px; font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  display: inline-flex; align-items: center; gap: 10px;
+  text-transform: uppercase;
 }
-.st-card-sub {
-  font-size: 11.5px; color: var(--text-3);
+.st-session-restore .st-session-label { color: var(--warning); }
+.st-session.is-done .st-session-label { color: var(--success); }
+
+.st-done-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-/* ─── Hero streak card ───────────────────────────────────── */
+.st-session-restore-body {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.st-session-restore-title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+}
+.st-session-restore-sub {
+  font-size: 12.5px; color: var(--text-2); line-height: 1.5;
+}
+
+.st-session-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-size: 14px;
+}
+.st-session-btn-done {
+  color: var(--success);
+  border-color: rgba(34, 197, 94, 0.28);
+}
+.st-session-btn-done:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+/* ============================================================
+   Streak hero
+   ============================================================ */
+
 .st-hero {
   position: relative;
   padding: 22px;
@@ -71,27 +111,25 @@
 .st-hero-flame {
   width: 62px; height: 62px;
   border-radius: 16px;
-  background: var(--gold-soft);
-  color: var(--gold);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.st-hero-flame-gold { background: var(--gold-soft); color: var(--gold); }
+.st-hero-flame-risk { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+.st-hero-flame-ash  { background: rgba(255, 255, 255, 0.05); color: var(--text-3); }
+.st-hero-flame-idle { background: rgba(255, 255, 255, 0.05); color: var(--text-3); }
+
 .st-hero-text { flex: 1; min-width: 0; }
 .st-hero-title {
   font-family: var(--font-display);
-  font-size: 26px; font-weight: 800;
+  font-size: 24px; font-weight: 800;
   color: var(--text);
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
-.st-hero-sub {
-  font-size: 12.5px; color: var(--text-2);
-  margin-top: 4px;
-}
-.st-hero-stats {
-  display: flex; gap: 22px;
-  flex-shrink: 0;
-}
+.st-hero-sub { font-size: 12.5px; color: var(--text-2); margin-top: 4px; }
+
+.st-hero-stats { display: flex; gap: 20px; flex-shrink: 0; }
 .st-hero-stat { text-align: right; }
 .st-hero-stat-value {
   font-family: var(--font-display);
@@ -101,13 +139,64 @@
   line-height: 1.1;
 }
 .st-hero-stat-label {
-  font-size: 10.5px; color: var(--text-3);
+  font-size: 10px; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 0.06em;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 2px;
 }
 
-/* ─── Week strip ─────────────────────────────────────────── */
+.st-hero-risk { border-color: rgba(245, 158, 11, 0.4); }
+.st-hero-ash  { border-color: rgba(255, 255, 255, 0.10); background: var(--bg-card); }
+.st-hero-idle { border-color: var(--border); background: var(--bg-card); }
+
+/* ============================================================
+   Cards
+   ============================================================ */
+
+.st-card {
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.st-card-tight { padding: 16px; }
+.st-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.st-card-title {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+}
+.st-card-sub { font-size: 11.5px; color: var(--text-3); }
+
+.st-card-row {
+  display: flex; align-items: center; gap: 14px;
+}
+.st-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.st-card-icon-gold   { background: rgba(245, 197, 66, 0.14); color: var(--gold); }
+.st-card-icon-indigo { background: rgba(99, 102, 241, 0.14); color: #A5B4FC; }
+.st-card-row-body { min-width: 0; flex: 1; }
+.st-card-row-body .st-card-title { line-height: 1.3; margin-bottom: 4px; }
+.st-card-row-body .st-card-sub { line-height: 1.5; }
+
+.st-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ============================================================
+   Week strip
+   ============================================================ */
+
 .st-week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -115,7 +204,7 @@
 }
 .st-week-day {
   display: flex; flex-direction: column; align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 12px 4px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -132,10 +221,12 @@
 .st-week-day.is-future { opacity: 0.5; }
 
 .st-week-dot {
-  width: 24px; height: 24px;
+  width: 26px; height: 26px;
   border-radius: 50%;
   border: 1.5px solid var(--border-strong);
   background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: #052E16;
   transition: background var(--t-fast), border-color var(--t-fast);
 }
 .st-week-day.is-active .st-week-dot {
@@ -143,141 +234,71 @@
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.18);
 }
-
 .st-week-letter {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 11px; font-weight: 700;
   color: var(--text-3);
   letter-spacing: 0.04em;
 }
 .st-week-day.is-active .st-week-letter { color: var(--gold); }
-.st-week-date {
-  font-size: 10px;
-  color: var(--text-3);
-}
 
-/* ─── Subject progress ───────────────────────────────────── */
-.st-subjects { display: flex; flex-direction: column; gap: 14px; }
-.st-subject { display: flex; flex-direction: column; gap: 6px; }
-.st-subject-top {
+/* ============================================================
+   Recent check-ins
+   ============================================================ */
+
+.st-history {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.st-history-row {
   display: flex; align-items: center; justify-content: space-between;
-}
-.st-subject-name {
-  font-size: 12.5px; font-weight: 600; color: var(--text-2);
-}
-.st-subject-pct {
-  font-size: 12.5px; font-weight: 700; color: var(--text);
-}
-.st-subject-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-.st-subject-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-  border-radius: 999px;
-  transition: width 400ms ease;
-}
-
-/* ─── Row card (past papers) ─────────────────────────────── */
-.st-card-row {
-  display: flex; align-items: center; gap: 14px;
-}
-.st-card-icon {
-  width: 42px; height: 42px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.st-card-icon-indigo {
-  background: rgba(99, 102, 241, 0.14);
-  color: #A5B4FC;
-}
-.st-card-row-body { min-width: 0; flex: 1; }
-.st-card-row .st-card-title { line-height: 1.3; }
-.st-card-row .st-card-sub { margin-top: 4px; line-height: 1.5; }
-
-/* ─── Today's goal ───────────────────────────────────────── */
-.st-goal {
-  border-color: var(--gold-ring);
-  background: linear-gradient(180deg, rgba(245, 197, 66, 0.05), rgba(245, 197, 66, 0.0));
-  display: flex; flex-direction: column; gap: 10px;
-}
-.st-goal-label {
-  font-size: 10.5px; font-weight: 800;
-  letter-spacing: 0.14em;
-  color: var(--gold);
-}
-.st-goal-title {
-  font-family: var(--font-display);
-  font-size: 16px; font-weight: 700;
-  color: var(--text);
-  line-height: 1.3;
-}
-.st-goal-sub {
-  font-size: 12px; color: var(--text-2);
-  line-height: 1.5;
-  margin-bottom: 6px;
-}
-.st-goal-cta {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 8px;
-  padding: 11px 16px;
-  font-size: 13px;
-}
-.st-goal-cta:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-
-/* ─── Weekly goals ───────────────────────────────────────── */
-.st-wgoal {
-  display: flex; align-items: baseline; gap: 12px;
-  margin-bottom: 12px;
-}
-.st-wgoal-num {
-  font-family: var(--font-display);
-  font-size: 32px; font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--gold);
-  line-height: 1;
-}
-.st-wgoal-num-total {
-  font-size: 18px; font-weight: 700;
-  color: var(--text-3);
-  margin-left: 2px;
-}
-.st-wgoal-text {
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
   font-size: 12.5px;
-  color: var(--text-2);
+}
+.st-history-date-inline {
+  color: var(--text);
   font-weight: 600;
-  line-height: 1.3;
 }
-.st-wgoal-sub {
-  font-size: 11px;
-  color: var(--text-3);
-  margin-top: 3px;
-  font-weight: 500;
-}
-.st-wgoal-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-.st-wgoal-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-  border-radius: 999px;
-  transition: width 400ms ease;
+.st-history-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--success);
+  font-weight: 700;
+  font-size: 11.5px;
 }
 
-/* ─── Badges ─────────────────────────────────────────────── */
-.st-view-all {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--gold);
+/* ============================================================
+   Empty states
+   ============================================================ */
+
+.st-empty {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 8px;
+  padding: 24px 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
 }
-.st-view-all:hover { color: var(--gold-dark); }
+.st-empty-title {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+}
+.st-empty-sub {
+  font-size: 12.5px; color: var(--text-3);
+  max-width: 360px; line-height: 1.5;
+}
+.st-empty-compact {
+  padding: 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
 
 .st-badges { display: flex; flex-direction: column; gap: 8px; }
 .st-badge {
@@ -291,32 +312,30 @@
   width: 34px; height: 34px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
   flex-shrink: 0;
 }
-.st-badge-gold   .st-badge-icon { background: rgba(245, 197, 66, 0.14); }
-.st-badge-green  .st-badge-icon { background: rgba(34, 197, 94, 0.14); }
-.st-badge-indigo .st-badge-icon { background: rgba(99, 102, 241, 0.14); }
-.st-badge-amber  .st-badge-icon { background: rgba(245, 158, 11, 0.14); }
-.st-badge-purple .st-badge-icon { background: rgba(168, 85, 247, 0.14); }
+.st-badge-gold   .st-badge-icon { background: rgba(245, 197, 66, 0.14); color: var(--gold); }
+.st-badge-green  .st-badge-icon { background: rgba(34, 197, 94, 0.14);  color: #4ADE80; }
+.st-badge-indigo .st-badge-icon { background: rgba(99, 102, 241, 0.14); color: #A5B4FC; }
 
 .st-badge-body { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.st-badge-name {
-  font-size: 12.5px; font-weight: 700;
-  color: var(--text);
-}
-.st-badge-sub { font-size: 11px; color: var(--text-3); line-height: 1.3; }
+.st-badge-name { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.st-badge-sub  { font-size: 11px; color: var(--text-3); line-height: 1.3; }
 
-/* ══════════════════════════════════════════════════════════
-   RESPONSIVE
-   ══════════════════════════════════════════════════════════ */
-@media (max-width: 1080px) {
-  .st-body { grid-template-columns: minmax(0, 1fr); }
-  .st-rail { position: static; }
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .st-two { grid-template-columns: 1fr; }
 }
-@media (max-width: 720px) {
+
+@media (max-width: 640px) {
+  .st-title { font-size: 24px; }
   .st-hero-content { flex-direction: column; align-items: flex-start; gap: 14px; }
   .st-hero-stats { width: 100%; justify-content: flex-start; }
-  .st-week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .st-title { font-size: 24px; }
+  .st-hero-stat { text-align: left; }
+  .st-session { padding: 16px; }
+  .st-week-day { padding: 10px 2px; }
+  .st-week-dot { width: 22px; height: 22px; }
 }

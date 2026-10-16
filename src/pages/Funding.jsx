@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { FUNDING, FUNDING_TIERS, daysUntilDeadline } from '../data/funding';
 import { INSTITUTIONS } from '../data/institutions';
 import { STREAMS } from '../data/subjects';
+import { COURSE_BY_ID } from '../data/courses';
 import Logo from '../components/Logo';
 
 import './Funding.css';
@@ -25,6 +26,8 @@ export default function Funding() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [query, setQuery] = useState('');
+  const courseParam = searchParams.get('course') || '';
+  const activeCourse = courseParam ? (COURSE_BY_ID[courseParam] || null) : null;
   const [activeTab, setActiveTab] = useState('All');
   const [filters, setFilters] = useState({
     tiers: [],
@@ -159,6 +162,31 @@ export default function Funding() {
           </p>
         </div>
       </header>
+
+      {activeCourse && (
+        <div className="fn-course-banner">
+          <span className="fn-course-banner-icon" aria-hidden="true"><SearchIcon /></span>
+          <div className="fn-course-banner-body">
+            <div className="fn-course-banner-title">
+              Matched to {activeCourse.name}
+            </div>
+            <div className="fn-course-banner-sub">
+              Sorted by relevance to your course and profile.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="fn-course-banner-clear"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete('course');
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* Tabs + search */}
       <div className="fn-tabs-row">
