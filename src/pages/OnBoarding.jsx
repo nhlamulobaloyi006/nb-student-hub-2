@@ -16,6 +16,7 @@ import {
 } from '../utils/subjectRules';
 import { calculateAPS } from '../utils/apsCalculator';
 import './Onboarding.css';
+import { useDialog } from '../components/DialogProvider';
 import Logo from '../components/Logo';
 import MatchCelebrationModal from '../components/MatchCelebrationModal';
 import { getMatchSummary } from '../utils/matchCourses';
@@ -27,6 +28,7 @@ const STEPS = ['stream', 'subjects', 'marks', 'interests'];
    ============================================================ */
 
 export default function Onboarding() {
+  const { confirm } = useDialog();
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
@@ -129,8 +131,14 @@ export default function Onboarding() {
     navigate('/dashboard?welcome=1');
   }
 
-  function handleSkip() {
-    if (!window.confirm('Skip setup? You can always finish it later from your Profile.')) return;
+  async function handleSkip() {
+    const ok = await confirm({
+      title: 'Skip setup for now?',
+      body: 'You can always finish it later from your Profile.',
+      confirmLabel: 'Skip anyway',
+      cancelLabel: 'Keep going',
+    });
+    if (!ok) return;
     navigate('/dashboard');
   }
 

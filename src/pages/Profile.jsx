@@ -21,6 +21,7 @@ import {
 import { calculateAPS, MAX_APS } from '../utils/apsCalculator';
 
 import './Profile.css';
+import { useDialog } from '../components/DialogProvider';
 
 const TABS = [
   { id: 'streams',   label: 'Streams' },
@@ -30,6 +31,7 @@ const TABS = [
 ];
 
 export default function Profile() {
+  const { confirm } = useDialog();
   const { user, updateUser, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -108,8 +110,14 @@ export default function Profile() {
     setError('');
   }
 
-  function handleSignOut() {
-    if (!window.confirm('Sign out of NB Student Hub?')) return;
+  async function handleSignOut() {
+    const ok = await confirm({
+      title: 'Sign out?',
+      body: 'You can sign back in any time.',
+      confirmLabel: 'Sign out',
+      tone: 'danger',
+    });
+    if (!ok) return;
     signOut();
     navigate('/signin', { replace: true });
   }

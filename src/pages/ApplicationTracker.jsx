@@ -6,6 +6,7 @@ import { COURSE_BY_ID } from '../data/courses';
 import Logo from '../components/Logo';
 
 import './ApplicationTracker.css';
+import { useDialog } from '../components/DialogProvider';
 import FundingMatchModal from '../components/FundingMatchModal';
 import { matchFunding } from '../utils/matchFunding';
 import { useSearchParams } from 'react-router-dom';
@@ -35,6 +36,7 @@ const SORTS = [
 ];
 
 export default function ApplicationTracker() {
+  const { confirm } = useDialog();
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
@@ -159,10 +161,16 @@ export default function ApplicationTracker() {
     updateUser({ applications: next });
   }
 
-  function deleteApp(id) {
+  async function deleteApp(id) {
     const app = applications.find((a) => a.id === id);
     if (!app) return;
-    if (!window.confirm(`Delete the ${app.institutionName} application?\n\nThis cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete this application?',
+      body: app.institutionName + ' — ' + app.courseName + '. This cannot be undone.',
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    });
+    if (!ok) return;
     const next = applications.filter((a) => a.id !== id);
     updateUser({ applications: next });
     setSelectedId(next[0]?.id || null);

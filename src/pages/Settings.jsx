@@ -10,8 +10,10 @@ import {
 import { seedDemoUser } from '../utils/seed';
 
 import './Settings.css';
+import { useDialog } from '../components/DialogProvider';
 
 export default function Settings() {
+  const { confirm } = useDialog();
   const { user, updateUser, signOut, deleteAccount } = useAuth();
   const navigate = useNavigate();
 
@@ -32,8 +34,14 @@ export default function Settings() {
     setTimeout(() => setNameMsg(''), 1800);
   }
 
-  function handleSignOut() {
-    if (!window.confirm('Sign out of NB Student Hub?')) return;
+  async function handleSignOut() {
+    const ok = await confirm({
+      title: 'Sign out?',
+      body: 'You can sign back in any time.',
+      confirmLabel: 'Sign out',
+      tone: 'danger',
+    });
+    if (!ok) return;
     signOut();
     navigate('/signin', { replace: true });
   }
@@ -54,21 +62,22 @@ export default function Settings() {
     setTimeout(() => setExportMsg(''), 1800);
   }
 
-  function handleReloadDemo() {
-    if (!window.confirm(
-      'Reload demo data?\n\n' +
-      'This replaces your current profile, applications, wellness check-ins, ' +
-      'streaks and saved items with the demo scenario.\n\n' +
-      'Your name and email stay the same.'
-    )) return;
+  async function handleReloadDemo() {
+    const ok = await confirm({
+      title: 'Reload demo data?',
+      body: 'This replaces your profile, applications, wellness check-ins, streaks and saved items. Your name and email stay the same.',
+      confirmLabel: 'Reload',
+    });
+    if (!ok) return;
 
     seedDemoUser(updateUser, user);
     setSeedMsg('Demo data loaded.');
     setTimeout(() => setSeedMsg(''), 2000);
   }
 
-  function handleClearProfile() {
-    if (!window.confirm('Clear all profile data (subjects, marks, applications, wellness, streaks)?\n\nYou will stay signed in but everything else will reset.')) return;
+  async function handleClearProfile() {
+    const ok = await confirm({ title: 'Clear profile data?', body: 'Removes subjects, marks, applications, wellness and streaks. You stay signed in.', confirmLabel: 'Clear data', tone: 'danger' });
+    if (!ok) return;
     updateUser({
       stream: '',
       subjects: { homeLanguage: '', fal: '', mathematics: '', electives: ['', '', ''] },
@@ -85,8 +94,9 @@ export default function Settings() {
     });
   }
 
-  function handleDeleteAccount() {
-    if (!window.confirm('Delete your account permanently? This removes your account and all data from this device.\n\nThis cannot be undone.')) return;
+  async function handleDeleteAccount() {
+    const ok = await confirm({ title: 'Delete your account?', body: 'This permanently removes your account and all data from this device. Cannot be undone.', confirmLabel: 'Delete account', tone: 'danger' });
+    if (!ok) return;
     deleteAccount();
     navigate('/signin', { replace: true });
   }

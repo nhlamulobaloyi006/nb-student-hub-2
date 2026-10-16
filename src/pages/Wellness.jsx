@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './Wellness.css';
+import { useDialog } from '../components/DialogProvider';
 
 const MOODS = [
   { id: 'very-low', label: 'Very low' },
@@ -17,6 +18,7 @@ const SLEEP_OPTIONS = [
 ];
 
 export default function Wellness() {
+  const { confirm } = useDialog();
   const { user, updateUser } = useAuth();
   const checkins = user?.wellness?.checkins || [];
 
@@ -50,8 +52,14 @@ export default function Wellness() {
     setNote('');
   }
 
-  function handleManageData() {
-    if (!window.confirm('Clear all wellness check-ins? This cannot be undone.')) return;
+  async function handleManageData() {
+    const ok = await confirm({
+      title: 'Clear all check-ins?',
+      body: 'Your wellness history will be deleted. Cannot be undone.',
+      confirmLabel: 'Clear data',
+      tone: 'danger',
+    });
+    if (!ok) return;
     updateUser({
       wellness: {
         ...(user?.wellness || { privacyAcknowledged: true }),

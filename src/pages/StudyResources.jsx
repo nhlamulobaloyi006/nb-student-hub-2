@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { RESOURCES, RESOURCE_TYPES } from '../data/resources';
 import './StudyResources.css';
+import { useDialog } from '../components/DialogProvider';
 
 const TYPE_TABS = ['All', ...RESOURCE_TYPES];
 
@@ -171,6 +172,7 @@ export default function StudyResources() {
 }
 
 function ResourceRow({ resource }) {
+  const { alert } = useDialog();
   const typeTone =
     resource.type === 'Past Papers' ? 'indigo'
     : resource.type === 'Revision' ? 'gold'
@@ -203,8 +205,11 @@ function ResourceRow({ resource }) {
         type="button"
         className="btn btn-outline sr-row-dl"
         onClick={() => {
-          // eslint-disable-next-line no-alert
-          alert(`Demo download: ${resource.title}\n\nIn the real app this would open or download the PDF.`);
+          alert({
+            title: 'Demo download',
+            body: resource.title + ' — in the real app this would open or download the PDF.',
+            confirmLabel: 'Got it',
+          });
         }}
       >
         <DownloadIcon />

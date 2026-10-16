@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './MobileDrawer.css';
+import { useDialog } from './DialogProvider';
 import NavBadge from './NavBadge';
 import { computeBadges } from '../utils/badges';
 
@@ -43,6 +44,7 @@ const SECTIONS = [
 ];
 
 export default function MobileDrawer({ open, onClose }) {
+  const { confirm } = useDialog();
   const { user, signOut } = useAuth();
   const badges = useMemo(() => computeBadges(user), [user]);
   const location = useLocation();
@@ -134,10 +136,18 @@ export default function MobileDrawer({ open, onClose }) {
             type="button"
             className="mdraw-signout"
             onClick={() => {
-              if (window.confirm('Sign out of NB Student Hub?')) {
-                onClose();
-                signOut();
-              }
+              (async () => {
+                const ok = await confirm({
+                  title: 'Sign out?',
+                  body: 'You can sign back in any time.',
+                  confirmLabel: 'Sign out',
+                  tone: 'danger',
+                });
+                if (ok) {
+                  onClose();
+                  signOut();
+                }
+              })();
             }}
           >
             <LogoutIcon />

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { DialogProvider } from './components/DialogProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 import SplashScreen from './components/SplashScreen';
+import UpdatePrompt from './components/UpdatePrompt';
 
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -52,6 +54,8 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <DialogProvider>
+      <DialogProvider>
       {!splashDone && <SplashScreen onDone={handleSplashDone} />}
       <BrowserRouter>
         <Routes>
@@ -84,7 +88,10 @@ export default function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
+        <UpdatePrompt />
       </BrowserRouter>
+      </DialogProvider>
+          </DialogProvider>
     </AuthProvider>
   );
 }

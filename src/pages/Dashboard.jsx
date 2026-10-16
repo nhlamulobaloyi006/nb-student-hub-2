@@ -1,7 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ProgressRing from '../components/ProgressRing';
+import StreakCheckinModal from '../components/StreakCheckinModal';
+import NbotNudgeModal from '../components/NbotNudgeModal';
+import { selectNudge, dismissNudge, markNudgeSeen } from '../utils/nudges';
+import { checkInToday } from '../utils/streaks';
 import {
   WidgetStreak,
   WidgetApplications,
@@ -21,8 +25,32 @@ import ResumeSetupBanner from '../components/ResumeSetupBanner';
 import './Dashboard.css';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+
+  const [nudge, setNudge] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const selected = selectNudge(user);
+    if (!selected) return;
+    const t = setTimeout(() => {
+      setNudge(selected);
+      markNudgeSeen();
+    }, 1200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]);
+
+  function handleStreakCheckIn() {
+    const result = checkInToday(user?.streaks || {});
+    if (result.changed) {
+      updateUser({ streaks: result.streaks });
+      return result.streaks.current || 0;
+    }
+    return user?.streaks?.current || 0;
+  }
+
 
   const firstName = useMemo(() => (user?.name || 'there').split(' ')[0], [user]);
 
@@ -157,6 +185,23 @@ export default function Dashboard() {
           />
         </aside>
       </div>
+
+      {nudge?.variant === 'streak' && (
+        <StreakCheckinModal
+          current={nudge.current || 0}
+          onCheckIn={handleStreakCheckIn}
+          onClose={() => setNudge(null)}
+        />
+      )}
+
+      {nudge && nudge.variant !== 'streak' && (
+        <NbotNudgeModal
+          nudge={nudge}
+          onClose={() => setNudge(null)}
+          onDismiss={() => { dismissNudge(); setNudge(null); }}
+        />
+      )}
+
     </div>
   );
 }
