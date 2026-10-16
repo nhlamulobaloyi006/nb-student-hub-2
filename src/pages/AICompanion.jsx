@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   CourseMatchCards,
@@ -15,6 +15,7 @@ import {
   welcomeMessage,
 } from '../utils/aiEngine';
 import { STREAM_LABELS } from '../data/subjects';
+import { promptText } from '../utils/nudges';
 
 import './AICompanion.css';
 
@@ -35,6 +36,7 @@ function isWelcomeMessage(m) {
 export default function AICompanion() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const listRef = useRef(null);
 
   const [messages, setMessages] = useState(() => {
@@ -108,8 +110,8 @@ export default function AICompanion() {
           <div className="aic-head-left">
             <div className="aic-avatar" aria-hidden="true"><BotIcon /></div>
             <div>
-              <h1 className="aic-title">Your Student Companion</h1>
-              <p className="aic-sub">Let's figure out your next step.</p>
+              <h1 className="aic-title">NBOT — Your Student Assistant</h1>
+              <p className="aic-sub">I can help you pick a course, find funding and stay on track.</p>
             </div>
           </div>
           <div className="aic-head-right">
@@ -128,22 +130,7 @@ export default function AICompanion() {
             </button>
           </div>
         </header>
-
-        <div className="aic-chips">
-          {SUGGESTED.map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="aic-chip"
-              onClick={() => handleChip(s)}
-              disabled={thinking}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        <div className="aic-list" ref={listRef}>
+<div className="aic-list" ref={listRef}>
           {messages.map((m) => (
             <MessageRow
               key={m.id}

@@ -1,0 +1,229 @@
+/* NBOT NUDGE MODAL */
+
+.nbm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 280;
+  background: rgba(5, 8, 15, 0.68);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.nbm-scrim.is-visible { opacity: 1; }
+
+.nbm-panel {
+  width: 100%;
+  max-width: 460px;
+  padding: 28px 24px 20px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, #131B33 0%, #0E1528 100%);
+  border: 1.5px solid var(--gold-ring);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  transform: scale(0.94) translateY(8px);
+  transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.nbm-scrim.is-visible .nbm-panel {
+  transform: scale(1) translateY(0);
+}
+
+.nbm-avatar {
+  width: 64px; height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #0A0E1A;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(245, 197, 66, 0.30);
+  margin-bottom: 4px;
+}
+
+.nbm-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+}
+
+.nbm-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.25;
+}
+.nbm-sub {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.55;
+  max-width: 380px;
+}
+
+.nbm-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.nbm-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  font-size: 13.5px;
+}
+.nbm-later {
+  padding: 10px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+@media (max-width: 480px) {
+  .nbm-panel { padding: 22px 18px 16px; }
+  .nbm-title { font-size: 18px; }
+  .nbm-avatar { width: 54px; height: 54px; }
+}
+
+
+/* ============================================================
+   Modal fit — never taller than the viewport, CTA always visible
+   ============================================================ */
+.nbm-panel {
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* NO overflow: hidden here — that clips the CTA on desktop */
+}
+
+/* Middle region scrolls ONLY when content overflows */
+.nbm-panel-scrollable {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Bottom actions are flex-shrink:0 — always fully visible */
+.nbm-actions {
+  flex-shrink: 0;
+  padding-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .nbm-panel {
+    max-height: calc(100vh - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+  .nbm-scrim {
+    padding: 6px;
+  }
+}
+
+
+/* Scrim should let the panel shrink if content is short */
+.nbm-scrim {
+  align-items: center;
+  overflow-y: auto;
+  padding: 20px;
+}
+@media (max-width: 640px) {
+  .nbm-scrim {
+    align-items: flex-start;
+    padding: 10px;
+  }
+}
+
+
+/* ============================================================
+   Tighter panel — content-sized, no fixed bottom padding
+   ============================================================ */
+.nbm-panel {
+  width: 100%;
+  max-width: 480px;
+  padding: 22px 22px 16px;
+  gap: 8px;
+  /* Let the panel shrink-wrap its content instead of stretching */
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  height: auto;
+}
+
+.nbm-icon,
+.nbm-avatar {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  margin-bottom: 0;
+}
+
+.nbm-title {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.nbm-sub {
+  font-size: 13px;
+  margin-top: 0;
+}
+
+.nbm-funds,
+.nbm-matches {
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.nbm-fund,
+.nbm-match {
+  padding: 10px 12px;
+}
+
+.nbm-actions {
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.nbm-cta {
+  padding: 12px 18px;
+  font-size: 13.5px;
+}
+
+.nbm-later {
+  padding: 8px;
+  font-size: 12.5px;
+}
+
+@media (max-width: 640px) {
+  .nbm-panel {
+    padding: 18px 16px 12px;
+    max-width: 100%;
+  }
+}
+
+
+/* ============================================================
+   Center the modal on every breakpoint
+   ============================================================ */
+.nbm-scrim {
+  align-items: center !important;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .nbm-scrim {
+    align-items: center !important;
+    padding: 12px;
+  }
+}

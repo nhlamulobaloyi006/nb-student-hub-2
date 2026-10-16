@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './MobileDrawer.css';
+import NavBadge from './NavBadge';
+import { computeBadges } from '../utils/badges';
 
 const SECTIONS = [
   {
@@ -42,6 +44,7 @@ const SECTIONS = [
 
 export default function MobileDrawer({ open, onClose }) {
   const { user, signOut } = useAuth();
+  const badges = useMemo(() => computeBadges(user), [user]);
   const location = useLocation();
 
   // Close drawer on route change
@@ -117,6 +120,7 @@ export default function MobileDrawer({ open, onClose }) {
                   >
                     <span className="mdraw-link-icon"><Icon /></span>
                     <span className="mdraw-link-label">{item.label}</span>
+                    <NavBadge badge={badges[item.to]} inline />
                   </NavLink>
                 );
               })}

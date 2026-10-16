@@ -446,7 +446,7 @@ export function welcomeMessage(user) {
     id: rid(),
     kind: 'text',
     text:
-      `Hi ${firstName} — I'm your Student Companion. Ask me anything about what to study, ` +
+      `Hi ${firstName} — I'm NBOT, your Student Assistant. Ask me anything about what to study, ` +
       `where, how to apply, or how to fund it. Right now, my suggestion is: **${action.title}**.`,
     chips: [
       'What can I study with my marks?',

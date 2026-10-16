@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './MobileNav.css';
+import { useMemo } from 'react';
+import { computeBadges } from '../utils/badges';
+import NavBadge from './NavBadge';
 
 const TABS = [
   { to: '/dashboard',    label: 'Home',      icon: HomeIcon },
@@ -13,6 +16,7 @@ const TABS = [
 
 export default function MobileNav({ onMenuClick }) {
   const { user } = useAuth();
+  const badges = useMemo(() => computeBadges(user), [user]);
   const location = useLocation();
 
   const initials = (user?.name || '·')
@@ -61,7 +65,10 @@ export default function MobileNav({ onMenuClick }) {
               className={({ isActive }) => 'mnav-tab' + (isActive ? ' is-active' : '')}
               role="tab"
             >
-              <span className="mnav-tab-icon"><Icon /></span>
+              <span className="mnav-tab-icon">
+                <Icon />
+                <NavBadge badge={badges[tab.to]} />
+              </span>
               <span className="mnav-tab-label">{tab.label}</span>
             </NavLink>
           );

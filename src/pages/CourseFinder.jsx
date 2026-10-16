@@ -186,7 +186,7 @@ export default function CourseFinder() {
         </div>
       )}
 
-      <div className="cf-body">
+      <div className={"cf-body" + (selected ? " has-detail" : "")}>
         {/* ═════════ LEFT: LIST ═════════ */}
         <div className="cf-list-pane">
           <div className="cf-toolbar">
@@ -381,10 +381,14 @@ function CourseDetail({
 
   return (
     <div className="cf-detail">
+      <button type="button" className="cf-mobile-back" onClick={onBack}>
+        <BackArrow /> Back to courses
+      </button>
       <button type="button" className="cf-back" onClick={onBack}>
         <BackArrow /> Back to courses
       </button>
 
+      <div className="cf-detail-body">
       <div className="cf-detail-head">
         <div className="cf-detail-logo">
           <Logo logoKey={inst?.logoKey} size={44} />
@@ -521,6 +525,8 @@ function CourseDetail({
       </div>
 
       {/* Footer CTAs */}
+      </div>
+
       <div className="cf-detail-footer">
         {alreadyApplied ? (
           <Link

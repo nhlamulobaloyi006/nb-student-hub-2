@@ -236,7 +236,7 @@ export default function ApplicationTracker() {
         <StatCard tone="red"    label="Rejected"  value={stats.Rejected}  icon={XIcon} />
       </div>
 
-      <div className="at-body">
+      <div className={"at-body" + (selected ? " has-detail" : "")}>
         <div className="at-main">
           <div className="at-list-head">
             <div className="at-list-title">Your applications ({applications.length})</div>
@@ -286,6 +286,7 @@ export default function ApplicationTracker() {
           {selected && (
             <DetailPanel
               app={selected}
+              onBack={() => setSelectedId(null)}
               onPatch={(patch) => patchApp(selected.id, patch)}
               onDelete={() => deleteApp(selected.id)}
             />
@@ -490,7 +491,7 @@ function ApplicationRow({ app, active, onClick, onQuickStatus, onDelete }) {
 /* ══════════════════════════════════════════════════════════
    Detail panel
    ══════════════════════════════════════════════════════════ */
-function DetailPanel({ app, onPatch, onDelete }) {
+function DetailPanel({ app, onPatch, onDelete, onBack }) {
   const [tab, setTab] = useState('details');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(() => toDraft(app));
@@ -534,6 +535,11 @@ function DetailPanel({ app, onPatch, onDelete }) {
 
   return (
     <div className="at-detail">
+      {onBack && (
+        <button type="button" className="at-mobile-back" onClick={onBack}>
+          <BackArrow /> Back to applications
+        </button>
+      )}
       <div className="at-tabs" role="tablist">
         <button
           type="button"
@@ -954,6 +960,15 @@ function WarningIcon() { return (<svg {...iconProps(16)}>
   <path d="M12 3 2 20h20L12 3z" />
   <path d="M12 10v4" /><circle cx="12" cy="17" r="0.9" fill="currentColor" />
 </svg>); }
+function BackArrow() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2.4"
+         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 5l-7 7 7 7" />
+    </svg>
+  );
+}
 function KebabIcon() { return (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <circle cx="12" cy="5" r="1.6" />

@@ -619,3 +619,94 @@
   border-top-color: var(--gold);
 }
 .cf-detail-footer { position: relative; }
+
+
+/* ============================================================
+   MOBILE — full-screen detail, no more scroll-then-find
+   ============================================================ */
+@media (max-width: 1024px) {
+  .cf-body.has-detail .cf-list-pane { display: none; }
+  .cf-body.has-detail .cf-detail-pane {
+    display: block;
+    position: static;
+  }
+  .cf-detail-pane {
+    /* when nothing is selected, detail pane is empty — hide it entirely */
+    display: none;
+  }
+  .cf-body.has-detail .cf-detail-pane {
+    display: block;
+  }
+
+  /* Mobile back button — only visible on small screens */
+  .cf-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    padding: 8px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    transition: color var(--t-fast), border-color var(--t-fast);
+  }
+  .cf-mobile-back:hover {
+    color: var(--gold);
+    border-color: var(--gold-ring);
+  }
+}
+
+/* Hide the mobile back button on desktop */
+.cf-mobile-back { display: none; }
+
+
+/* ============================================================
+   Detail panel: fixed header, scrollable body, fixed footer
+   Works desktop + mobile
+   ============================================================ */
+.cf-detail {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 40px);
+  min-height: 420px;
+  overflow: hidden;
+}
+
+/* Body wrapper: scrolls internally */
+.cf-detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 4px;
+  margin-right: -4px;
+}
+
+/* Keep the sticky footer visible */
+.cf-detail-footer {
+  flex-shrink: 0;
+  padding-top: 14px;
+  margin-top: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+/* Mobile — panel already fills the screen; allow taller max-height */
+@media (max-width: 1024px) {
+  .cf-detail {
+    max-height: none;
+    min-height: 0;
+  }
+  .cf-detail-body {
+    max-height: calc(100vh - 260px);
+  }
+}

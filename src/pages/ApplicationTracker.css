@@ -793,3 +793,36 @@
   .at-editor-grid { grid-template-columns: minmax(0, 1fr); }
   .at-kebab-menu { right: -8px; }
 }
+
+
+/* ============================================================
+   MOBILE — full-screen detail for applications
+   ============================================================ */
+@media (max-width: 1024px) {
+  .at-body.has-detail .at-main { display: none; }
+  .at-body.has-detail .at-rail { display: block; position: static; }
+
+  .at-rail { display: none; }
+  .at-body.has-detail .at-rail { display: block; }
+
+  .at-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    padding: 8px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    transition: color var(--t-fast), border-color var(--t-fast);
+  }
+  .at-mobile-back:hover {
+    color: var(--gold);
+    border-color: var(--gold-ring);
+  }
+}
+
+.at-mobile-back { display: none; }

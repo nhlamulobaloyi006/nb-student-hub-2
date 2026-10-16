@@ -1,0 +1,76 @@
+/* ============================================================
+   NAV BADGE
+   ============================================================ */
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  flex-shrink: 0;
+  color: #0A0E1A;
+}
+
+.nav-badge-gold   { background: var(--gold); }
+.nav-badge-green  { background: var(--success); color: #052E16; }
+.nav-badge-indigo { background: var(--info); color: #FFFFFF; }
+.nav-badge-amber  { background: var(--warning); }
+.nav-badge-red    { background: var(--danger); color: #FFFFFF; }
+
+.nav-badge-dot {
+  min-width: 8px;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+}
+
+.nav-badge-inline {
+  margin-left: auto;
+}
+
+/* In the sidebar, only show the badge when the link is NOT active,
+   otherwise it fights with the gold background */
+.sidebar-link.is-active .nav-badge {
+  background: #0A0E1A;
+  color: var(--gold);
+}
+.sidebar-link.is-active .nav-badge-dot {
+  background: #0A0E1A;
+}
+
+/* In mobile tabs, the badge sits absolutely over the icon */
+.mnav-tab-icon { position: relative; }
+.mnav-tab-icon .nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  font-size: 9px;
+  border: 2px solid var(--bg-page);
+}
+.mnav-tab-icon .nav-badge-dot {
+  min-width: 8px;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  top: -2px;
+  right: -2px;
+}
+
+/* In the mobile drawer, badges behave like the sidebar */
+.mdraw-link.is-active .nav-badge {
+  background: #0A0E1A;
+  color: var(--gold);
+}
+.mdraw-link.is-active .nav-badge-dot {
+  background: #0A0E1A;
+}

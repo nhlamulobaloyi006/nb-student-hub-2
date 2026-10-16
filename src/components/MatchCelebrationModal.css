@@ -198,3 +198,137 @@
   padding: 6px;
   box-sizing: border-box;
 }
+
+
+/* ============================================================
+   Modal fit — never taller than the viewport, CTA always visible
+   ============================================================ */
+.mcm-panel {
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* NO overflow: hidden here — that clips the CTA on desktop */
+}
+
+/* Middle region scrolls ONLY when content overflows */
+.mcm-panel-scrollable {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Bottom actions are flex-shrink:0 — always fully visible */
+.mcm-actions {
+  flex-shrink: 0;
+  padding-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .mcm-panel {
+    max-height: calc(100vh - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+  .mcm-scrim {
+    padding: 6px;
+  }
+}
+
+
+/* Scrim should let the panel shrink if content is short */
+.mcm-scrim {
+  align-items: center;
+  overflow-y: auto;
+  padding: 20px;
+}
+@media (max-width: 640px) {
+  .mcm-scrim {
+    align-items: flex-start;
+    padding: 10px;
+  }
+}
+
+
+/* ============================================================
+   Tighter panel — content-sized, no fixed bottom padding
+   ============================================================ */
+.mcm-panel {
+  width: 100%;
+  max-width: 480px;
+  padding: 22px 22px 16px;
+  gap: 8px;
+  /* Let the panel shrink-wrap its content instead of stretching */
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  height: auto;
+}
+
+.mcm-icon,
+.mcm-avatar {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  margin-bottom: 0;
+}
+
+.mcm-title {
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.mcm-sub {
+  font-size: 13px;
+  margin-top: 0;
+}
+
+.mcm-funds,
+.mcm-matches {
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.mcm-fund,
+.mcm-match {
+  padding: 10px 12px;
+}
+
+.mcm-actions {
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.mcm-cta {
+  padding: 12px 18px;
+  font-size: 13.5px;
+}
+
+.mcm-later {
+  padding: 8px;
+  font-size: 12.5px;
+}
+
+@media (max-width: 640px) {
+  .mcm-panel {
+    padding: 18px 16px 12px;
+    max-width: 100%;
+  }
+}
+
+
+/* ============================================================
+   Center the modal on every breakpoint
+   ============================================================ */
+.mcm-scrim {
+  align-items: center !important;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .mcm-scrim {
+    align-items: center !important;
+    padding: 12px;
+  }
+}
