@@ -496,6 +496,164 @@ export const COURSES = [
     streamRequired: 'science', interestTags: ['technology', 'computers'],
     feeEstimate: 42500,
     description: 'One-year IT foundation. Pathway to the IIE IT diploma or degree.' },
+
+  // ══════════════════════════════════════════════════════════
+  // LOW-APS PATHWAY COURSES (14-24 APS)
+  // Built for learners who don't meet university entry but want
+  // a real qualification, a bridging year, or a TVET pathway.
+  // ══════════════════════════════════════════════════════════
+
+  // ── TVET NC(V) Level 2 entry ──────────────────
+  { id: 'tvt-ncv-l2-business', name: 'NC(V) Level 2 Business Administration', universityId: 'tvt', university: 'Tshwane North TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Business Studies', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)', 'Mathematics (1)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship', 'finance'],
+    feeEstimate: 14500,
+    description: 'Entry-level NC(V) for learners with weak matric marks. Covers office administration, basic bookkeeping and business communication.' },
+
+  { id: 'tvt-ncv-l2-hospitality', name: 'NC(V) Level 2 Hospitality', universityId: 'tvt', university: 'Tshwane North TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Hospitality', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 15500,
+    description: 'Entry-level hospitality training. Food prep, front-of-house and guest services. Pathway to NATED or employment.' },
+
+  { id: 'tvt-ncv-l2-it', name: 'NC(V) Level 2 Information Technology', universityId: 'tvt', university: 'Tshwane North TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Engineering Studies', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)', 'Mathematics (1)'],
+    streamRequired: 'science', interestTags: ['technology', 'computers'],
+    feeEstimate: 16000,
+    description: 'Basic hardware, software and networking fundamentals. Entry-level IT for matriculants with low APS.' },
+
+  { id: 'fetc-ncv-l2-business', name: 'NC(V) Level 2 Business Studies', universityId: 'fetc', university: 'False Bay TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Business Studies', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 15000,
+    description: 'Business fundamentals at entry level. Covers marketing, bookkeeping and computer practice.' },
+
+  { id: 'fetc-ncv-l2-hospitality', name: 'NC(V) Level 2 Hospitality & Tourism', universityId: 'fetc', university: 'False Bay TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Hospitality & Tourism', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 16000,
+    description: 'Entry-level hospitality and tourism. Kitchen skills, customer service and travel basics.' },
+
+  { id: 'fetc-ncv-l2-engineering', name: 'NC(V) Level 2 Engineering & Related Design', universityId: 'fetc', university: 'False Bay TVET College',
+    tier: 'TVET', duration: '3 years', faculty: 'Engineering Studies', minAPS: 14, maxAPS: 42,
+    requiredSubjects: ['English (1)', 'Mathematics (1)'],
+    streamRequired: 'technical', interestTags: ['engineering'],
+    feeEstimate: 16500,
+    description: 'Entry-level engineering. Basic fitting, turning and welding. Foundation for artisan trades.' },
+
+  // ── NATED Report 191 (bridging) ───────────────
+  { id: 'tvt-nated-business-n4', name: 'NATED Business Management N4-N6', universityId: 'tvt', university: 'Tshwane North TVET College',
+    tier: 'TVET', duration: '2 years', faculty: 'Business Studies', minAPS: 18, maxAPS: 42,
+    requiredSubjects: ['English (2)'],
+    streamRequired: 'commerce', interestTags: ['business', 'finance', 'entrepreneurship'],
+    feeEstimate: 16500,
+    description: 'NATED Report 191 Business Management. Two-year diploma equivalent. Bridge to university or employment.' },
+
+  { id: 'tvt-nated-hr-n4', name: 'NATED Human Resource Management N4-N6', universityId: 'tvt', university: 'Tshwane North TVET College',
+    tier: 'TVET', duration: '2 years', faculty: 'Business Studies', minAPS: 18, maxAPS: 42,
+    requiredSubjects: ['English (2)'],
+    streamRequired: 'commerce', interestTags: ['business', 'social-work'],
+    feeEstimate: 16500,
+    description: 'HR management NATED programme. Labour relations, recruitment and personnel administration.' },
+
+  { id: 'fetc-nated-finance-n4', name: 'NATED Financial Management N4-N6', universityId: 'fetc', university: 'False Bay TVET College',
+    tier: 'TVET', duration: '2 years', faculty: 'Business Studies', minAPS: 18, maxAPS: 42,
+    requiredSubjects: ['English (2)', 'Mathematics (2)'],
+    streamRequired: 'commerce', interestTags: ['finance', 'business'],
+    feeEstimate: 17500,
+    description: 'NATED Financial Management. Pathway to junior finance roles or further study.' },
+
+  // ── Higher Certificate pathway (1 year, then degree) ──
+  { id: 'rosebank-hcert-business', name: 'IIE Higher Certificate in Business Management', universityId: 'rosebank', university: 'Rosebank College',
+    tier: 'Private College', duration: '1 year', faculty: 'Business', minAPS: 18, maxAPS: 42,
+    requiredSubjects: ['English (2)'],
+    streamRequired: 'commerce', interestTags: ['business', 'finance', 'entrepreneurship'],
+    feeEstimate: 32500,
+    description: 'One-year foundation. On completion, direct entry to the IIE Diploma or Degree in Business.' },
+
+  { id: 'rosebank-hcert-it', name: 'IIE Higher Certificate in Information Systems', universityId: 'rosebank', university: 'Rosebank College',
+    tier: 'Private College', duration: '1 year', faculty: 'Information Technology', minAPS: 18, maxAPS: 42,
+    requiredSubjects: ['English (2)'],
+    streamRequired: 'science', interestTags: ['technology', 'computers'],
+    feeEstimate: 33500,
+    description: 'One-year IT foundation. Fast track to the IIE Diploma in IT.' },
+
+  { id: 'varsity-hcert-business', name: 'IIE Higher Certificate in Business', universityId: 'varsity', university: 'Varsity College',
+    tier: 'Private College', duration: '1 year', faculty: 'Commerce', minAPS: 20, maxAPS: 42,
+    requiredSubjects: ['English (3)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 38500,
+    description: 'One-year bridging certificate. Pathway into the IIE BCom.' },
+
+  { id: 'varsity-hcert-psych', name: 'IIE Higher Certificate in Social Science', universityId: 'varsity', university: 'Varsity College',
+    tier: 'Private College', duration: '1 year', faculty: 'Psychology & Social Sciences', minAPS: 20, maxAPS: 42,
+    requiredSubjects: ['English (3)'],
+    streamRequired: 'humanities', interestTags: ['psychology', 'social-work'],
+    feeEstimate: 37500,
+    description: 'One-year foundation in psychology and social sciences. Pathway to the IIE BA.' },
+
+  { id: 'varsity-hcert-design', name: 'IIE Higher Certificate in Design', universityId: 'varsity', university: 'Varsity College',
+    tier: 'Private College', duration: '1 year', faculty: 'Design', minAPS: 20, maxAPS: 42,
+    requiredSubjects: ['English (3)'],
+    streamRequired: 'arts', interestTags: ['design', 'arts'],
+    feeEstimate: 37500,
+    description: 'One-year creative foundation. Graphic, digital and UX design.' },
+
+  // ── UoT Higher Certificate / extended programmes ──
+  { id: 'cput-hcert-ict', name: 'Higher Certificate in ICT', universityId: 'cput', university: 'Cape Peninsula University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'Informatics & Design', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)', 'Mathematics (2)'],
+    streamRequired: 'science', interestTags: ['technology', 'computers'],
+    feeEstimate: 28900,
+    description: 'One-year bridging certificate into CPUT ICT diplomas. For learners just below diploma entry.' },
+
+  { id: 'cput-hcert-business', name: 'Higher Certificate in Business', universityId: 'cput', university: 'Cape Peninsula University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'Business & Management Sciences', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 27900,
+    description: 'One-year business foundation. Pathway into CPUT diploma programmes.' },
+
+  { id: 'dut-hcert-eng', name: 'Higher Certificate in Engineering', universityId: 'dut', university: 'Durban University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'Engineering & the Built Environment', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)', 'Mathematics (3)'],
+    streamRequired: 'technical', interestTags: ['engineering'],
+    feeEstimate: 29900,
+    description: 'One-year engineering bridging. Gateway into DUT engineering diplomas.' },
+
+  { id: 'tut-hcert-it', name: 'Higher Certificate in Information Technology', universityId: 'tut', university: 'Tshwane University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'ICT', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)', 'Mathematics (2)'],
+    streamRequired: 'science', interestTags: ['technology', 'computers'],
+    feeEstimate: 27500,
+    description: 'One-year IT foundation at TUT. Bridge into the Diploma in IT.' },
+
+  { id: 'tut-hcert-hospitality', name: 'Higher Certificate in Hospitality', universityId: 'tut', university: 'Tshwane University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'Management Sciences', minAPS: 20, maxAPS: 42,
+    requiredSubjects: ['English (3)'],
+    streamRequired: 'commerce', interestTags: ['business', 'entrepreneurship'],
+    feeEstimate: 25900,
+    description: 'One-year hospitality foundation. Pathway into the Diploma in Hospitality Management.' },
+
+  { id: 'vut-hcert-eng', name: 'Higher Certificate in Engineering', universityId: 'vut', university: 'Vaal University of Technology',
+    tier: 'University of Technology', duration: '1 year', faculty: 'Engineering & Technology', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)', 'Mathematics (2)', 'Physical Sciences (2)'],
+    streamRequired: 'technical', interestTags: ['engineering'],
+    feeEstimate: 26500,
+    description: 'One-year bridging into VUT engineering diplomas. Practical, hands-on.' },
+
+  { id: 'fetc-hcert-it', name: 'Higher Certificate in IT (NQF 5)', universityId: 'fetc', university: 'False Bay TVET College',
+    tier: 'TVET', duration: '1 year', faculty: 'Information Technology', minAPS: 22, maxAPS: 42,
+    requiredSubjects: ['English (3)', 'Mathematics (2)'],
+    streamRequired: 'science', interestTags: ['technology', 'computers'],
+    feeEstimate: 24000,
+    description: 'One-year NQF 5 ICT certificate. Entry point to a career in tech support or software.' },
+
 ];
 
 

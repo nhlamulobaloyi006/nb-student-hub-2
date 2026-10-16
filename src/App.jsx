@@ -27,6 +27,7 @@ import Wellness from './pages/Wellness';
 import Streaks from './pages/Streaks';
 import AICompanion from './pages/AICompanion';
 import Settings from './pages/Settings';
+import MatricUpgrade from './pages/MatricUpgrade';
 
 /** Wrap a page with the app shell (sidebar, mobile nav, notifications). */
 function Shell({ children }) {
@@ -83,6 +84,7 @@ export default function App() {
           <Route path="/streaks"      element={<Shell><Streaks /></Shell>} />
           <Route path="/companion"    element={<Shell><AICompanion /></Shell>} />
           <Route path="/settings"     element={<Shell><Settings /></Shell>} />
+          <Route path="/matric-upgrade" element={<Shell><MatricUpgrade /></Shell>} />
 
           {/* Redirects */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

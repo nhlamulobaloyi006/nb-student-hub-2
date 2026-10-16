@@ -30,6 +30,7 @@ const SECTIONS = [
     label: 'GROWTH',
     items: [
       { to: '/resources', label: 'Study Resources', icon: BookIcon },
+      { to: '/matric-upgrade', label: 'Matric Upgrade', icon: RewriteIcon },
       { to: '/wellness',  label: 'Wellness',        icon: HeartIcon },
       { to: '/streaks',   label: 'Study Streaks',   icon: FlameIcon },
     ],
@@ -205,6 +206,12 @@ function ClipboardIcon() { return (<svg {...iconProps()}>
   <path d="M9.5 4.5V3.6c0-.6.4-1 1-1h3c.6 0 1 .4 1 1v.9" />
   <path d="M9.5 11h5M9.5 14.5h5M9.5 18h3" />
 </svg>); }
+function RewriteIcon() {
+  return (<svg {...iconProps(20)}>
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>);
+}
 function BookIcon() { return (<svg {...iconProps()}>
   <path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z" />
   <path d="M13 4h5.5c.8 0 1.5.7 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H13z" />
