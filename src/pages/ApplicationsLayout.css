@@ -1,0 +1,8 @@
+/* ══════════════════════════════════════════════════════════
+   APPLICATIONS LAYOUT
+   Passthrough container — pages own their own layout.
+   ══════════════════════════════════════════════════════════ */
+
+.al {
+  display: contents;
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './MobileNav.css';
 import { useMemo } from 'react';
@@ -16,6 +16,7 @@ const TABS = [
 
 export default function MobileNav({ onMenuClick }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const badges = useMemo(() => computeBadges(user), [user]);
   const location = useLocation();
 
@@ -49,9 +50,16 @@ export default function MobileNav({ onMenuClick }) {
           <span className="mnav-brand-name">{title}</span>
         </div>
 
-        <NavLink to="/profile" className="mnav-avatar" aria-label="Profile">
+        <button
+          type="button"
+          className="mnav-avatar"
+          aria-label={user?.onboardingComplete ? 'Profile' : 'Continue setup'}
+          onClick={() =>
+            navigate(user?.onboardingComplete ? '/profile' : '/onboarding')
+          }
+        >
           {initials}
-        </NavLink>
+        </button>
       </header>
 
       {/* ── Bottom tab bar ───────────────────────── */}

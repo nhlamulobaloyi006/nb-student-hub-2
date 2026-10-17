@@ -307,3 +307,15 @@
     padding: 12px;
   }
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   DESKTOP ONLY — slightly tighter modal panel.
+   Mobile is entirely handled by existing @media (max-width: 640px)
+   rules above, so this min-width query leaves mobile untouched.
+   ══════════════════════════════════════════════════════════ */
+@media (min-width: 641px) {
+  .fmm-panel {
+    max-width: 420px;
+  }
+}

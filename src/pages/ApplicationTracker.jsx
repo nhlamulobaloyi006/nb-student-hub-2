@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { INSTITUTION_BY_ID } from '../data/institutions';
 import { COURSE_BY_ID } from '../data/courses';
@@ -10,7 +10,7 @@ import { useDialog } from '../components/DialogProvider';
 import FundingMatchModal from '../components/FundingMatchModal';
 import CareerMatchModal from '../components/CareerMatchModal';
 import { matchFunding } from '../utils/matchFunding';
-import { useSearchParams } from 'react-router-dom';
+import ApplicationDetailInline from './ApplicationDetail';
 
 const STATUSES = ['Preparing', 'Submitted', 'Pending', 'Accepted', 'Rejected'];
 
@@ -40,14 +40,31 @@ export default function ApplicationTracker() {
   const { confirm } = useDialog();
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const { id: routeId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const applications = useMemo(() => user?.applications || [], [user]);
-  const [searchParams, setSearchParams] = useSearchParams();
+
   const [fundingMatch, setFundingMatch] = useState(null);
   const [lastAppliedCourse, setLastAppliedCourse] = useState(null);
   const [careerMatch, setCareerMatch] = useState(null);
+  const [sort, setSort] = useState('recent');
+  const [selectedId, setSelectedId] = useState(null);
 
-  // React to ?new=<courseId> — opens the funding modal
+  // On desktop, auto-select the first application if none is selected
+  useEffect(() => {
+    if (applications.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+    if (!selectedId || !applications.some((a) => a.id === selectedId)) {
+      setSelectedId(applications[0].id);
+    }
+  }, [applications, selectedId]);
+
+  /* React to ?new=<courseId> — opens the funding modal, then clears
+     the param so a refresh doesn't re-open it. This is where the
+     "Add as application" flow lands from Courses on mobile. */
   useEffect(() => {
     const courseId = searchParams.get('new');
     if (!courseId) return;
@@ -56,7 +73,6 @@ export default function ApplicationTracker() {
     const result = matchFunding(user, course, { max: 6 });
     setFundingMatch({ course, funds: result.top });
     setLastAppliedCourse(course);
-    // clear the URL param so a refresh doesn't re-open the modal
     const next = new URLSearchParams(searchParams);
     next.delete('new');
     setSearchParams(next, { replace: true });
@@ -65,20 +81,16 @@ export default function ApplicationTracker() {
 
   function closeFundingMatch() {
     setFundingMatch(null);
-    // Kick off the 5-second careers prompt only if we have a course to talk about
     if (!lastAppliedCourse) return;
     if (isCareerMuted(lastAppliedCourse.id)) return;
     setTimeout(() => {
-      // Fire only if the user is still on this page (no navigation in the meantime)
       if (window.location.pathname !== '/applications') return;
       setCareerMatch({ course: lastAppliedCourse });
     }, 5000);
   }
 
   function closeCareerMatch() {
-    if (careerMatch?.course) {
-      muteCareer(careerMatch.course.id);
-    }
+    if (careerMatch?.course) muteCareer(careerMatch.course.id);
     setCareerMatch(null);
   }
 
@@ -90,9 +102,7 @@ export default function ApplicationTracker() {
       if (!at) return false;
       const days = (Date.now() - Number(at)) / 86400000;
       return days < 3;
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   }
 
   function muteCareer(courseId) {
@@ -103,16 +113,6 @@ export default function ApplicationTracker() {
       localStorage.setItem('nb_careers_muted', JSON.stringify(map));
     } catch { /* ignore */ }
   }
-
-  const [selectedId, setSelectedId] = useState(() => applications[0]?.id || null);
-  const [sort, setSort] = useState('recent');
-
-  useEffect(() => {
-    if (applications.length === 0) { setSelectedId(null); return; }
-    if (!applications.some((a) => a.id === selectedId)) {
-      setSelectedId(applications[0].id);
-    }
-  }, [applications, selectedId]);
 
   /* ── Sorted list ──────────────────────────────────────── */
   const sorted = useMemo(() => {
@@ -134,8 +134,6 @@ export default function ApplicationTracker() {
         return list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     }
   }, [applications, sort]);
-
-  const selected = applications.find((a) => a.id === selectedId) || null;
 
   /* ── Stats ────────────────────────────────────────────── */
   const stats = useMemo(() => ({
@@ -166,12 +164,21 @@ export default function ApplicationTracker() {
     navigate('/courses?add=1');
   }
 
+  function openDetail(id) {
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
+    if (isMobile) {
+      navigate('/applications/' + id);
+    } else {
+      setSelectedId(id);
+    }
+  }
+
   function startFromShortlist(courseId) {
     const course = COURSE_BY_ID[courseId];
     if (!course) return;
     if (applications.some((a) => a.courseId === courseId)) {
       const existing = applications.find((a) => a.courseId === courseId);
-      setSelectedId(existing.id);
+      navigate('/applications/' + existing.id);
       return;
     }
     const inst = INSTITUTION_BY_ID[course.universityId];
@@ -191,14 +198,12 @@ export default function ApplicationTracker() {
       createdAt: today,
     };
     updateUser({ applications: [...applications, app] });
-    setSelectedId(app.id);
+    /* Stay on the list. Tap the row to open the detail. */
   }
 
-  /* ── Mutators ─────────────────────────────────────────── */
+  /* ── Mutators (used by row kebab menu) ─────────────────── */
   function patchApp(id, patch) {
-    const next = applications.map((a) =>
-      a.id === id ? { ...a, ...patch } : a
-    );
+    const next = applications.map((a) => (a.id === id ? { ...a, ...patch } : a));
     updateUser({ applications: next });
   }
 
@@ -214,7 +219,8 @@ export default function ApplicationTracker() {
     if (!ok) return;
     const next = applications.filter((a) => a.id !== id);
     updateUser({ applications: next });
-    setSelectedId(next[0]?.id || null);
+    /* If the deleted app was the one open in the detail route, bounce to list */
+    if (selectedId === id) setSelectedId(null);
   }
 
   function quickStatus(id, status) {
@@ -285,7 +291,7 @@ export default function ApplicationTracker() {
         <StatCard tone="red"    label="Rejected"  value={stats.Rejected}  icon={XIcon} />
       </div>
 
-      <div className={"at-body" + (selected ? " has-detail" : "")}>
+      <div className="at-body">
         <div className="at-main">
           <div className="at-list-head">
             <div className="at-list-title">Your applications ({applications.length})</div>
@@ -306,7 +312,7 @@ export default function ApplicationTracker() {
                 key={app.id}
                 app={app}
                 active={app.id === selectedId}
-                onClick={() => setSelectedId(app.id)}
+                onClick={() => openDetail(app.id)}
                 onQuickStatus={(status) => quickStatus(app.id, status)}
                 onDelete={() => deleteApp(app.id)}
               />
@@ -332,13 +338,16 @@ export default function ApplicationTracker() {
         </div>
 
         <aside className="at-rail">
-          {selected && (
-            <DetailPanel
-              app={selected}
-              onBack={() => setSelectedId(null)}
-              onPatch={(patch) => patchApp(selected.id, patch)}
-              onDelete={() => deleteApp(selected.id)}
-            />
+          {selectedId ? (
+             <ApplicationDetailInline id={selectedId} onClose={() => setSelectedId(null)} />
+          ) : (
+            <div className="at-rail-empty">
+              <div className="at-rail-empty-icon" aria-hidden="true"><FileIcon /></div>
+              <div className="at-rail-empty-title">Select an application</div>
+              <div className="at-rail-empty-sub">
+                Pick an application on the left to see its details, documents and status.
+              </div>
+            </div>
           )}
         </aside>
       </div>
@@ -546,389 +555,9 @@ function ApplicationRow({ app, active, onClick, onQuickStatus, onDelete }) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   Detail panel
-   ══════════════════════════════════════════════════════════ */
-function DetailPanel({ app, onPatch, onDelete, onBack }) {
-  const [tab, setTab] = useState('details');
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(() => toDraft(app));
-
-  useEffect(() => {
-    setDraft(toDraft(app));
-  }, [app.id, app.status, app.submittedDate, app.deadline, app.referenceNumber, app.notes]);
-
-  const inst = INSTITUTION_BY_ID[app.institutionId];
-  const docs = app.documents?.length ? app.documents : defaultDocs();
-
-  function openEditor(presets = {}) {
-    setDraft({ ...toDraft(app), ...presets });
-    setEditing(true);
-  }
-
-  function saveEditor() {
-    const patch = {
-      status: draft.status,
-      submittedDate: draft.status === 'Submitted' ? (draft.submittedDate || today()) : draft.submittedDate || null,
-      deadline: draft.deadline || null,
-      referenceNumber: draft.referenceNumber || makeRef(inst?.shortName || 'APP'),
-      notes: draft.notes,
-    };
-    onPatch(patch);
-    setEditing(false);
-  }
-
-  function toggleDoc(index) {
-    const next = docs.map((d, i) => {
-      if (i !== index) return d;
-      const cycle = {
-        'Pending': 'Uploaded',
-        'Uploaded': 'Not required',
-        'Not required': 'Pending',
-      };
-      return { ...d, status: cycle[d.status] || 'Pending' };
-    });
-    onPatch({ documents: next });
-  }
-
-  return (
-    <div className="at-detail">
-      {onBack && (
-        <button type="button" className="at-mobile-back" onClick={onBack}>
-          <BackArrow /> Back to applications
-        </button>
-      )}
-      <div className="at-tabs" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'details'}
-          className={`at-tab${tab === 'details' ? ' is-active' : ''}`}
-          onClick={() => setTab('details')}
-        >
-          Application details
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'checklist'}
-          className={`at-tab${tab === 'checklist' ? ' is-active' : ''}`}
-          onClick={() => setTab('checklist')}
-        >
-          Document checklist
-        </button>
-      </div>
-
-      <div className="at-detail-body">
-        <div className="at-detail-head">
-          <div className="at-detail-logo" aria-hidden="true">
-            <Logo logoKey={inst?.logoKey || 'generic'} />
-          </div>
-          <div className="at-detail-head-text">
-            <div className="at-detail-inst">{app.institutionName}</div>
-            <div className="at-detail-course">{app.courseName}</div>
-            <span className={`badge badge-${STATUS_TONE[app.status] || 'indigo'} at-detail-badge`}>
-              {app.status}
-            </span>
-          </div>
-        </div>
-
-        {/* Submit CTA — visible until the app is actually Submitted or beyond */}
-        {app.status === 'Preparing' && !editing && (
-          <button
-            type="button"
-            className="at-submit-cta"
-            onClick={() => openEditor({ status: 'Submitted', submittedDate: today() })}
-          >
-            <SendIcon />
-            Submit application
-            <MiniArrow />
-          </button>
-        )}
-
-        <div className="at-meta-strip">
-          <MetaCell label="Submitted" value={app.submittedDate ? formatDate(app.submittedDate) : '—'} />
-          <MetaCell label="Deadline"  value={app.deadline ? formatDate(app.deadline) : '—'} />
-          <MetaCell label="Reference number" value={app.referenceNumber || '—'} small />
-        </div>
-
-        {/* ─── EDITOR ─────────────────────────────── */}
-        {editing && (
-          <div className="at-editor">
-            <div className="at-editor-head">
-              <div className="at-editor-title">Update application</div>
-              <button
-                type="button"
-                className="at-editor-close"
-                onClick={() => setEditing(false)}
-                aria-label="Close"
-              >
-                <XIcon />
-              </button>
-            </div>
-
-            <div className="at-editor-grid">
-              <div className="at-editor-field">
-                <label className="at-editor-label">Status</label>
-                <select
-                  className="at-editor-input"
-                  value={draft.status}
-                  onChange={(e) => setDraft({ ...draft, status: e.target.value })}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="at-editor-field">
-                <label className="at-editor-label">Submitted date</label>
-                <input
-                  type="date"
-                  className="at-editor-input"
-                  value={draft.submittedDate || ''}
-                  onChange={(e) => setDraft({ ...draft, submittedDate: e.target.value })}
-                />
-              </div>
-
-              <div className="at-editor-field">
-                <label className="at-editor-label">Deadline</label>
-                <input
-                  type="date"
-                  className="at-editor-input"
-                  value={draft.deadline || ''}
-                  onChange={(e) => setDraft({ ...draft, deadline: e.target.value })}
-                />
-              </div>
-
-              <div className="at-editor-field">
-                <label className="at-editor-label">Reference number</label>
-                <input
-                  type="text"
-                  className="at-editor-input"
-                  value={draft.referenceNumber}
-                  onChange={(e) => setDraft({ ...draft, referenceNumber: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="at-editor-field">
-              <label className="at-editor-label">Notes</label>
-              <textarea
-                className="at-editor-input at-editor-textarea"
-                rows={3}
-                value={draft.notes}
-                onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-              />
-            </div>
-
-            <div className="at-editor-actions">
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setEditing(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={saveEditor}
-              >
-                Save changes
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ─── TABS BODY ──────────────────────────── */}
-        {!editing && tab === 'details' && (
-          <>
-            <div className="at-section">
-              <div className="at-section-title">Application status</div>
-              <Timeline status={app.status} submittedDate={app.submittedDate} />
-            </div>
-
-            <div className="at-section">
-              <div className="at-section-head">
-                <div className="at-section-title">Notes</div>
-                <button
-                  type="button"
-                  className="at-section-action"
-                  onClick={() => openEditor()}
-                >
-                  Edit
-                </button>
-              </div>
-              <div className="at-notes">
-                {app.notes || defaultNote(app)}
-              </div>
-            </div>
-
-            <div className="at-section">
-              <div className="at-section-title">Useful links</div>
-              <div className="at-links">
-                {inst?.website && (
-                  <a
-                    className="at-link"
-                    href={inst.website}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    <LinkIcon /> {inst.shortName || 'Institution'} applications portal
-                    <ExternalIcon />
-                  </a>
-                )}
-                <Link to={`/courses?q=${encodeURIComponent(app.courseName)}`} className="at-link">
-                  <LinkIcon /> Course information
-                  <MiniArrow />
-                </Link>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="btn btn-primary btn-block at-update"
-              onClick={() => openEditor()}
-            >
-              Update application
-            </button>
-          </>
-        )}
-
-        {!editing && tab === 'checklist' && (
-          <div className="at-section">
-            <div className="at-section-head">
-              <div className="at-section-title">Required documents</div>
-              <span className="at-section-hint">Click a document to update</span>
-            </div>
-            <div className="at-docs">
-              {docs.map((doc, i) => (
-                <DocumentRow
-                  key={i}
-                  doc={doc}
-                  onClick={() => toggleDoc(i)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MetaCell({ label, value, small }) {
-  return (
-    <div className="at-meta-cell">
-      <div className="at-meta-label">{label}</div>
-      <div className={`at-meta-value${small ? ' is-small' : ''}`}>{value}</div>
-    </div>
-  );
-}
-
-function Timeline({ status, submittedDate }) {
-  const steps = [
-    {
-      key: 'prepared',
-      label: 'Application prepared',
-      body: status === 'Preparing' ? 'Currently editing' : 'Completed',
-    },
-    {
-      key: 'submitted',
-      label: 'Submitted to institution',
-      body: submittedDate ? formatDate(submittedDate) : '—',
-    },
-    {
-      key: 'awaiting',
-      label: 'Awaiting response',
-      body: status === 'Pending' ? 'In progress' : (status === 'Accepted' || status === 'Rejected') ? 'Completed' : '—',
-    },
-    {
-      key: 'decision',
-      label: 'Decision',
-      body: status === 'Accepted' ? 'Accepted 🎉'
-          : status === 'Rejected' ? 'Not this time'
-          : 'Not yet available',
-    },
-  ];
-
-  const activeIndex =
-    status === 'Preparing' ? 0
-    : status === 'Submitted' ? 1
-    : status === 'Pending' ? 2
-    : status === 'Accepted' || status === 'Rejected' ? 3
-    : 1;
-
-  return (
-    <ol className="at-timeline">
-      {steps.map((s, i) => {
-        const state = i < activeIndex ? 'done' : i === activeIndex ? 'current' : 'todo';
-        const decisionState = s.key === 'decision'
-          ? (status === 'Accepted' ? 'done'
-            : status === 'Rejected' ? 'fail'
-            : 'todo')
-          : null;
-        const cls = decisionState || state;
-        return (
-          <li key={s.key} className={`at-timeline-step at-timeline-${cls}`}>
-            <span className="at-timeline-marker">
-              {cls === 'done' ? <CheckIcon /> :
-               cls === 'fail' ? <XIcon /> :
-               <span className="at-timeline-dot" />}
-            </span>
-            <div className="at-timeline-body">
-              <div className="at-timeline-label">{s.label}</div>
-              <div className="at-timeline-sub">{s.body}</div>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function DocumentRow({ doc, onClick }) {
-  const tone =
-    doc.status === 'Uploaded' ? 'green'
-    : doc.status === 'Pending' ? 'amber'
-    : 'gray';
-  return (
-    <button
-      type="button"
-      className="at-doc"
-      onClick={onClick}
-      title="Click to cycle: Pending → Uploaded → Not required"
-    >
-      <span className="at-doc-icon"><FileIcon /></span>
-      <span className="at-doc-label">{doc.label}</span>
-      <span className={`at-doc-status at-doc-status-${tone}`}>{doc.status}</span>
-      <span className="at-doc-arrow"><RefreshIcon /></span>
-    </button>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════
-   Institution logo monograms
-   ══════════════════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════════════════
    Helpers
    ══════════════════════════════════════════════════════════ */
 
-function toDraft(app) {
-  return {
-    status: app.status || 'Preparing',
-    submittedDate: app.submittedDate || '',
-    deadline: app.deadline || '',
-    referenceNumber: app.referenceNumber || '',
-    notes: app.notes || '',
-  };
-}
-
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-/** Short, readable reference number: ABC-2026-1234 */
 function makeRef(shortName) {
   const year = new Date().getFullYear();
   const num = Math.floor(1000 + Math.random() * 9000);
@@ -965,10 +594,6 @@ function daysToFinals() {
   now.setHours(0, 0, 0, 0);
   target.setHours(0, 0, 0, 0);
   return Math.max(0, Math.round((target - now) / 86400000));
-}
-
-function defaultNote(app) {
-  return `Application submitted through the ${app.institutionName} online portal. Reference number: ${app.referenceNumber || '—'}.`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1017,15 +642,6 @@ function WarningIcon() { return (<svg {...iconProps(16)}>
   <path d="M12 3 2 20h20L12 3z" />
   <path d="M12 10v4" /><circle cx="12" cy="17" r="0.9" fill="currentColor" />
 </svg>); }
-function BackArrow() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="2.4"
-         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M19 12H5M11 5l-7 7 7 7" />
-    </svg>
-  );
-}
 function KebabIcon() { return (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <circle cx="12" cy="5" r="1.6" />
@@ -1037,18 +653,6 @@ function FileIcon() { return (<svg {...iconProps(16)}>
   <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
   <path d="M14 3v5h5" />
   <path d="M9 13h6M9 17h4" />
-</svg>); }
-function LinkIcon() { return (<svg {...iconProps(14)}>
-  <path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1 1" />
-  <path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1" />
-</svg>); }
-function ExternalIcon() { return (<svg {...iconProps(12)}>
-  <path d="M15 4h5v5" /><path d="M20 4 10 14" />
-  <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
-</svg>); }
-function RefreshIcon() { return (<svg {...iconProps(14)}>
-  <path d="M3 12a9 9 0 0 1 15.4-6.4L21 8" /><path d="M21 3v5h-5" />
-  <path d="M21 12a9 9 0 0 1-15.4 6.4L3 16" /><path d="M3 21v-5h5" />
 </svg>); }
 function TrashIcon() { return (<svg {...iconProps(14)}>
   <path d="M4 7h16" /><path d="M9 7V4h6v3" />

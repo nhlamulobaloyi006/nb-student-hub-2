@@ -22,6 +22,7 @@ import Careers from './pages/Careers';
 import Funding from './pages/Funding';
 import CostPlanner from './pages/CostPlanner';
 import ApplicationTracker from './pages/ApplicationTracker';
+import ApplicationDetail from './pages/ApplicationDetail';
 import StudyResources from './pages/StudyResources';
 import Wellness from './pages/Wellness';
 import Streaks from './pages/Streaks';
@@ -56,7 +57,6 @@ export default function App() {
   return (
     <AuthProvider>
       <DialogProvider>
-      <DialogProvider>
       {!splashDone && <SplashScreen onDone={handleSplashDone} />}
       <BrowserRouter>
         <Routes>
@@ -79,6 +79,7 @@ export default function App() {
           <Route path="/funding"      element={<Shell><Funding /></Shell>} />
           <Route path="/cost-planner" element={<Shell><CostPlanner /></Shell>} />
           <Route path="/applications" element={<Shell><ApplicationTracker /></Shell>} />
+          <Route path="/applications/:id" element={<Shell><ApplicationDetail /></Shell>} />
           <Route path="/resources"    element={<Shell><StudyResources /></Shell>} />
           <Route path="/wellness"     element={<Shell><Wellness /></Shell>} />
           <Route path="/streaks"      element={<Shell><Streaks /></Shell>} />
@@ -93,7 +94,6 @@ export default function App() {
         <UpdatePrompt />
       </BrowserRouter>
       </DialogProvider>
-          </DialogProvider>
     </AuthProvider>
   );
 }

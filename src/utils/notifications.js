@@ -179,7 +179,7 @@ const RULES = [
       return {
         title: 'Finish your profile',
         body: `Add your ${missing.slice(0, 2).join(' and ')}${missing.length > 2 ? ` (${missing.length} things)` : ''} to unlock course matching.`,
-        to: '/profile',
+        to: '/onboarding',
         cta: 'Complete profile',
       };
     },

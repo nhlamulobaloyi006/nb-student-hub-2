@@ -795,34 +795,49 @@
 }
 
 
-/* ============================================================
-   MOBILE — full-screen detail for applications
-   ============================================================ */
-@media (max-width: 1024px) {
-  .at-body.has-detail .at-main { display: none; }
-  .at-body.has-detail .at-rail { display: block; position: static; }
-
-  .at-rail { display: none; }
-  .at-body.has-detail .at-rail { display: block; }
-
-  .at-mobile-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-2);
-    padding: 8px 12px;
-    border-radius: 999px;
-    margin-bottom: 12px;
-    background: var(--bg-card-2);
-    border: 1px solid var(--border);
-    transition: color var(--t-fast), border-color var(--t-fast);
-  }
-  .at-mobile-back:hover {
-    color: var(--gold);
-    border-color: var(--gold-ring);
-  }
+/* ══════════════════════════════════════════════════════════
+   RIGHT RAIL — empty placeholder (desktop, no :id in URL)
+   ══════════════════════════════════════════════════════════ */
+.at-rail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-strong);
+  background: var(--bg-card);
+  gap: 8px;
+}
+.at-rail-empty-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(245, 197, 66, 0.08);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.at-rail-empty-icon svg { width: 22px; height: 22px; }
+.at-rail-empty-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+}
+.at-rail-empty-sub {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+  max-width: 260px;
 }
 
-.at-mobile-back { display: none; }
+/* ══════════════════════════════════════════════════════════
+   ROUTING — list vs detail decided by URL, not CSS classes.
+   On mobile the rail is hidden entirely; the detail page
+   (/applications/:id) renders full-screen inside .ad.
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .at-rail { display: none; }
+}
