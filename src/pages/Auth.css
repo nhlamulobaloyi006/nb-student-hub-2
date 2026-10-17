@@ -187,3 +187,50 @@
   .auth-form .input { padding: 8px 11px; font-size: 13px; }
   .auth-foot { margin-top: 10px; padding-top: 10px; }
 }
+
+
+/* ============================================================
+   PASSWORD TOGGLE — eye button inside password inputs
+   ============================================================ */
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-with-toggle {
+  /* leave room on the right for the toggle button */
+  padding-right: 44px !important;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.auth-password-toggle:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+.auth-password-toggle:active {
+  background: rgba(255, 255, 255, 0.10);
+}
+.auth-password-toggle:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.auth-password-toggle svg {
+  pointer-events: none;
+}
