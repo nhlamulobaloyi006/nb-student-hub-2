@@ -11,7 +11,7 @@ import './Roadmap.css';
  * The 9 ids come from getRoadmapMilestones().milestones.
  */
 const META = {
-  profile:     { tone: 'gold',   icon: UserIcon,     cta: 'Go to profile',    to: '/profile' },
+  profile:     { tone: 'gold',   icon: UserIcon,     cta: 'Go to profile',    to: '/onboarding' },
   explore:     { tone: 'indigo', icon: CompassIcon,  cta: 'Browse courses',   to: '/courses' },
   compare:     { tone: 'indigo', icon: BuildingIcon, cta: 'Compare now',      to: '/institutions' },
   costs:       { tone: 'gold',   icon: CalcIcon,     cta: 'Open Cost Planner', to: '/cost-planner' },
