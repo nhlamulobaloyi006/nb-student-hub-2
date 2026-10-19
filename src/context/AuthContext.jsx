@@ -147,6 +147,44 @@ export function AuthProvider({ children }) {
     if (!password) throw new Error('Password is required.');
 
     const registry = readRegistry();
+
+    // ── HACKATHON DEMO MAGIC ──
+    // If the judge logs in with these credentials and the account doesn't exist yet,
+    // we create it on the spot so they have a fully populated dashboard.
+    if (cleanEmail === 'judge@nbstudenthub.co.za' && password === 'Hackathon2026') {
+      if (!registry.some((u) => u.email === cleanEmail)) {
+        const demoUser = makeDefaultUser({
+          name: 'Judge Demo',
+          email: cleanEmail,
+          passwordHash: demoHash('Hackathon2026'),
+        });
+        
+        demoUser.stream = 'Commerce';
+        demoUser.subjects = {
+          homeLanguage: 'English Home Language',
+          fal: 'isiZulu First Additional Language',
+          mathematics: 'Mathematical Literacy',
+          electives: ['Accounting', 'Business Studies', 'Economics']
+        };
+        demoUser.subjectMarks = {
+          'English Home Language': 75,
+          'isiZulu First Additional Language': 80,
+          'Mathematical Literacy': 65,
+          'Accounting': 85,
+          'Business Studies': 78,
+          'Economics': 72
+        };
+        demoUser.interests = ['Business & Money', 'Technology & Coding'];
+        demoUser.aps = 34;
+        demoUser.onboardingComplete = true;
+        demoUser.preferences.province = 'Gauteng';
+
+        registry.push(demoUser);
+        writeRegistry(registry);
+      }
+    }
+    // ── END DEMO MAGIC ──
+
     const found = registry.find((u) => u.email === cleanEmail);
     if (!found) throw new Error('No account found with that email.');
     if (found.passwordHash !== demoHash(password)) {

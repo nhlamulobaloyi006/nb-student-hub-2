@@ -55,9 +55,13 @@ export default function Dashboard() {
 
   const quote = useMemo(() => pickQuote(user?.email || 'guest'), [user?.email]);
 
-  const streamLabel = user?.stream ? STREAM_LABELS[user.stream] : 'No stream yet';
+  // Safely resolve the stream label to prevent "undefined"
+  const streamLabel = user?.stream ? (STREAM_LABELS[user.stream] || user.stream) : 'No stream yet';
   const province = user?.preferences?.province || 'Province not set';
+  
+  // Use the fixed countSubjects function at the bottom
   const subjectsCount = countSubjects(user);
+  
   const subtitle = `${subjectsCount} subject${subjectsCount === 1 ? '' : 's'} · ${streamLabel} stream · ${province}`;
 
   const nextAction = useMemo(() => getNextAction(user), [user]);
@@ -422,7 +426,6 @@ function formatDayMonth(iso) {
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short' });
 }
 
-/** Matric finals start on the 4th Monday of October (approx 26 Oct). */
 function daysUntilMatricFinals() {
   const now = new Date();
   const year = now.getFullYear();
@@ -442,7 +445,6 @@ function topCourseName(user) {
   return passes[0]?.c?.name || '';
 }
 
-/** Prefer the latest saved estimate. Fall back to a rough guess from profile. */
 function estimateFundingGap(user) {
   const saved = user?.savedEstimates?.[0];
   if (saved && typeof saved.gap === 'number') return saved.gap;
@@ -468,10 +470,7 @@ function estimateFundingGap(user) {
   return Math.max(0, total - potential);
 }
 
-/* ══════════════════════════════════════════════════════════
-   Icons
-   ══════════════════════════════════════════════════════════ */
-
+/* Icons */
 function iconProps(size = 18) {
   return {
     width: size, height: size, viewBox: '0 0 24 24',

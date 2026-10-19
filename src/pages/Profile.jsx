@@ -255,7 +255,7 @@ function StreamsTab({ stream, onSelect }) {
 
       <div className="pr-streams">
         {STREAMS.map((s) => {
-          const active = stream === s.id;
+          const active = stream === s.id || stream === s.label;
           return (
             <button
               key={s.id}
