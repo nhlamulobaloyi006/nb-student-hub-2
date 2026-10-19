@@ -102,8 +102,6 @@ export default function SplashScreen({
 
         {/* Wordmark */}
         <div className={`splash-wordmark ${stage !== 'ring' ? 'loaded' : ''}`}>
-          <div className="splash-wordmark-name">NB Student Hub</div>
-          <div className="splash-wordmark-tag">Know your options. Plan your future.</div>
         </div>
       </div>
     </div>
