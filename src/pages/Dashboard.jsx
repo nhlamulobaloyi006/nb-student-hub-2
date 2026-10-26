@@ -23,6 +23,70 @@ import ResumeSetupBanner from '../components/ResumeSetupBanner';
 
 import './Dashboard.css';
 
+// Helper to get the current matric exam status based on the 2026 timetable
+function getExamStatus() {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  const examStart = new Date('2026-10-12T00:00:00');
+  const examEnd = new Date('2026-11-27T00:00:00');
+
+  // 1. Before exams
+  if (now < examStart) {
+    const days = Math.round((examStart - now) / 86400000);
+    return `EXAMS START IN ${days} DAY${days === 1 ? '' : 'S'}`;
+  }
+
+  // 2. After exams
+  if (now > examEnd) {
+    return 'EXAMS COMPLETED';
+  }
+
+  // 3. During exams - check if there is an exam today
+  const month = now.getMonth() + 1; // 1-12
+  const day = now.getDate();
+
+  // A simplified map of major exam dates from the timetable
+  const timetable = {
+    '10-12': 'CAT P1 Practical',
+    '10-15': 'English HL/FAL P3',
+    '10-16': 'Economics P1 / Design P1',
+    '10-19': 'isiZulu/isiXhosa HL P3 / Agri Sci P1',
+    '10-20': 'Afrikaans P3 / History P1',
+    '10-21': 'Sepedi/Sesotho P3 / IT P2',
+    '10-22': 'Accounting P1 / EGD P1',
+    '10-23': 'Mathematics P1 / Maths Lit P1',
+    '10-26': 'Mathematics P2 / Maths Lit P2',
+    '10-27': 'Sepedi/Sesotho P1 / EGD P2',
+    '10-28': 'English HL/FAL P1 / Accounting P2',
+    '10-29': 'Geography P1 / CAT P2',
+    '10-30': 'Physical Sciences P1 / Tourism',
+    '11-02': 'Physical Sciences P2 / Religion P1',
+    '11-06': 'isiZulu/isiXhosa P1 / Consumer Studies',
+    '11-10': 'isiZulu/isiXhosa P2 / Electrical Tech',
+    '11-11': 'Afrikaans P1 / Business Studies P1',
+    '11-12': 'Geography P2 / Religion P2',
+    '11-13': 'Life Sciences P1',
+    '11-16': 'Life Sciences P2 / Dramatic Arts',
+    '11-17': 'Sepedi/Sesotho P2 / Agri Sci P2',
+    '11-18': 'Business Studies P2 / Visual Arts P1',
+    '11-19': 'English HL/FAL P2 / History P2',
+    '11-20': 'Afrikaans P2 / Economics P2',
+    '11-23': 'Agri Tech / Music P1',
+    '11-24': 'Agri Management / Marine Sci P2',
+    '11-25': 'Music P2',
+    '11-26': 'CAT/IT P1 Rewrite',
+  };
+
+  const key = `${month}-${day}`;
+  if (timetable[key]) {
+    return `EXAM TODAY: ${timetable[key]}`;
+  }
+
+  // It's during the exam period, but no exam today
+  return 'STUDY DAY (NO EXAM)';
+}
+
 export default function Dashboard() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
@@ -67,10 +131,8 @@ export default function Dashboard() {
   const nextAction = useMemo(() => getNextAction(user), [user]);
   const roadmap = useMemo(() => getRoadmapMilestones(user), [user]);
 
-  const daysToFinals = useMemo(() => daysUntilMatricFinals(), []);
-  const finalsLabel = daysToFinals > 0
-    ? `MATRIC FINALS IN ${daysToFinals} DAY${daysToFinals === 1 ? '' : 'S'}`
-    : 'MATRIC FINALS UNDERWAY';
+  // Use the new dynamic exam status
+  const finalsLabel = useMemo(() => getExamStatus(), []);
 
   const fundingGap = useMemo(() => estimateFundingGap(user), [user]);
 
@@ -363,7 +425,7 @@ function RailPush({ onCourses, onFunding }) {
   const urgents = useMemo(() => {
     return FUNDING
       .map((f) => ({ f, d: daysUntilDeadline(f.deadline) }))
-      .filter(({ d }) => d >= 0 && d <= 45)
+      .filter(({ d }) => d !== null && d >= 0 && d <= 45)
       .sort((a, b) => a.d - b.d)
       .slice(0, 3);
   }, []);
@@ -424,16 +486,6 @@ function formatDayMonth(iso) {
   if (!iso) return '';
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short' });
-}
-
-function daysUntilMatricFinals() {
-  const now = new Date();
-  const year = now.getFullYear();
-  let target = new Date(year, 9, 26);
-  if (target < now) target = new Date(year + 1, 9, 26);
-  now.setHours(0, 0, 0, 0);
-  target.setHours(0, 0, 0, 0);
-  return Math.max(0, Math.round((target - now) / 86400000));
 }
 
 function topCourseName(user) {
