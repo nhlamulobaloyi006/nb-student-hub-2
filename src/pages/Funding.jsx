@@ -51,7 +51,7 @@ export default function Funding() {
     }
   }, []);
 
-  /* ── Filter logic ────────────────────────────────────── */
+  /* ── Filter & Sort logic ────────────────────────────────────── */
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = FUNDING.map((f) => ({ fund: f, days: daysUntilDeadline(f.deadline) }));
@@ -80,7 +80,30 @@ export default function Funding() {
       );
     }
 
-    list.sort((a, b) => a.days - b.days);
+    // Custom Sort: Open -> Unverified -> Closed
+    list.sort((a, b) => {
+      // 1. Open (days >= 0)
+      const aIsOpen = a.days !== null && a.days >= 0;
+      const bIsOpen = b.days !== null && b.days >= 0;
+
+      if (aIsOpen && !bIsOpen) return -1;
+      if (!aIsOpen && bIsOpen) return 1;
+
+      // 2. Both are open -> sort by soonest deadline
+      if (aIsOpen && bIsOpen) {
+        return a.days - b.days;
+      }
+
+      // 3. Both are closed or unverified
+      const aIsUnverified = a.days === null;
+      const bIsUnverified = b.days === null;
+
+      if (aIsUnverified && !bIsUnverified) return -1; // Unverified above Closed
+      if (!aIsUnverified && bIsUnverified) return 1;
+
+      return 0; // Keep original order for the rest
+    });
+
     return list;
   }, [query, activeTab, filters]);
 
@@ -548,7 +571,16 @@ function FundingCard({ fund, days, saved, onSave }) {
       ? 'Potentially eligible'
       : 'More information needed';
 
-  const urgent = days >= 0 && days <= 30;
+  // Safe deadline rendering
+  const isClosed = days !== null && days < 0;
+  const isUnverified = days === null;
+  const urgent = days !== null && days >= 0 && days <= 30;
+  
+  const deadlineText = isUnverified 
+    ? 'Not Announced' 
+    : isClosed 
+      ? 'Closed' 
+      : `${days} day${days === 1 ? '' : 's'} left`;
 
   return (
     <article
@@ -578,7 +610,7 @@ function FundingCard({ fund, days, saved, onSave }) {
             </span>
           ))}
           <span className={`fn-card-meta-item fn-card-deadline${urgent ? ' is-urgent' : ''}`}>
-            <CalendarIcon /> {days >= 0 ? `${days} day${days === 1 ? '' : 's'} left` : 'Closed'}
+            <CalendarIcon /> {deadlineText}
           </span>
         </div>
 
@@ -646,9 +678,6 @@ function CheckRow({ label, count, checked, onChange }) {
   );
 }
 
-/* ══════════════════════════════════════════════════════════
-   Funding logos (monogram tiles)
-   ══════════════════════════════════════════════════════════ */
 /* ══════════════════════════════════════════════════════════
    Helpers
    ══════════════════════════════════════════════════════════ */

@@ -600,16 +600,16 @@ export const FUNDING_TIERS = [
 
 /**
  * Days until a confirmed deadline.
- * Returns Infinity when no date is confirmed.
+ * Returns null when no date is confirmed or the date is invalid.
  */
 export function daysUntilDeadline(iso, today = new Date()) {
-  if (!iso) return Infinity;
+  if (!iso) return null;
 
   const now = new Date(today);
   now.setHours(0, 0, 0, 0);
 
   const deadline = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(deadline.getTime())) return Infinity;
+  if (Number.isNaN(deadline.getTime())) return null;
 
   return Math.round(
     (deadline.getTime() - now.getTime()) / DAY_MS
@@ -628,6 +628,7 @@ export function getFundingStatus(funding, today = new Date()) {
 
   const days = daysUntilDeadline(funding.deadline, today);
 
+  if (days === null) return 'unconfirmed';
   if (days < 0) return 'closed';
   if (days === 0) return 'closing-today';
 
