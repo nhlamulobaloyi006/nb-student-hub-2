@@ -89,25 +89,75 @@ An **in-app install banner** appears on the Dashboard for users who haven't inst
 
 ---
 
-## Demo credentials
+## Demo credentials (For Judges)
 
-**Any email and password work.** Sign up on `/signup` and you're in.
+To make testing instant, we have pre-loaded a fully populated student profile. Use these exact credentials on the login screen:
 
-Suggested demo flow:
+- **Email:** `judge@nbstudenthub.co.za`
+- **Password:** `Hackathon2026`
 
-1. Open the app → sign up as `demo@nbhub.co.za` / `demo123`
-2. **Guided wizard** walks you through Stream → Subjects → Marks → Interests
-3. After saving: **celebration modal** shows courses you qualify for
-4. Click **Browse all matches** → Course Finder filters to those courses
-5. Tap a course → detail panel with tabs (Overview / Requirements / Costs / Funding)
-6. **Add as application** glows gold → click → **funding match modal** fires
-7. Dismiss it → **5 seconds later, career match modal fires**
-8. Click **See careers with NBOT** → chat opens with a pre-seeded prompt
-9. Continue to Funding, Cost Planner, Wellness, Streaks, Matric Upgrade, NBOT
+**What happens when you log in?**
+The app automatically generates a fully populated Commerce student profile with a calculated APS score, saved applications, and funding matches. You land directly on a live dashboard without having to fill out the onboarding wizard.
 
-To reset:
+**Standard User Flow (If you want to test onboarding):**
+1. Sign up with any new email and password.
+2. The **Guided Wizard** walks you through Stream → Subjects → Marks → Interests.
+3. After saving, a **celebration modal** shows the courses you qualify for.
+4. Click **Browse all matches** to jump straight to your Course Finder results.
 
-```js
-localStorage.clear();
-sessionStorage.clear();
-location.reload();
+---
+
+## The guided journey
+
+1. **Onboarding wizard** — pick a stream, choose subjects, add marks, select interests
+2. **Celebration modal** — instantly shows qualifying courses based on the entered APS
+3. **Course Finder** — filter and explore the full catalogue, view entry requirements and costs
+4. **Institution pages** — dive into a specific university's admission details and accommodation
+5. **Cost Planner** — calculate annual study costs and find the funding gap
+6. **Application Tracker** — shortlist courses, track application statuses and required documents
+7. **NBOT AI Companion** — ask plain-language questions about courses, funding, or next steps
+8. **Wellness & Streaks** — daily check-ins and study consistency tracking
+9. **Matric Upgrade** — explore alternative pathways if the APS is too low
+
+---
+
+## Feature map
+
+| Area | Key Screens | Core Utilities |
+|---|---|---|
+| **Discovery** | Course Finder, Institutions, Institution Page | `courses.js`, `institutions.js`, `eligibilityChecker.js` |
+| **Funding** | Funding Finder, Cost Planner | `funding.js`, `getFundingStatus()` |
+| **Applications** | Application Tracker | `applications.js` (local state) |
+| **Growth** | Wellness, Study Streaks, Matric Upgrade | `streaks.js`, `nudges.js` |
+| **Support** | NBOT Companion, Settings, Profile | `subjectRules.js`, `apsCalculator.js` |
+
+---
+
+## AI Companion (NBOT)
+
+NBOT is a rule-based conversational agent designed to feel like a helpful advisor.
+
+- **Intent Parsing:** Matches keywords (e.g., "study", "NSFAS", "cost") to specific handlers.
+- **Rich Responses:** Returns structured UI cards for course matches, cost breakdowns, and funding options.
+- **No API Costs:** Runs entirely locally using the app's existing data logic, ensuring 100% privacy and zero latency.
+
+---
+
+## Tech stack
+
+- **React 18** (Vite)
+- **React Router v6** (Client-side routing)
+- **CSS3** (Custom styling, CSS variables, no Tailwind)
+- **LocalStorage / SessionStorage** (State management & persistence)
+- **Vercel** (Hosting & deployment)
+- **PWA** (Service worker for offline support)
+
+---
+
+## Run it locally
+
+```bash
+git clone https://github.com/nhlamulobaloyi006/nb-student-hub-2.git
+cd nb-student-hub-2
+npm install
+npm run dev
